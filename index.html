@@ -1,14 +1,734 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panomind</title>
+  <title>Panomind Overlay for PTGui</title>
+  <meta
+    name="description"
+    content="Panomind is a live PTGui overlay that exposes control-point structure, weak links, outliers, and assistant workflows directly inside the Panorama Editor."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <header class="hero" id="top">
+    <div class="hero__veil"></div>
+    <nav class="topbar">
+      <a class="brand" href="#top" aria-label="Panomind home">
+        <img src="assets/panomind-wordmark.png" alt="Panomind">
+      </a>
+      <div class="topbar__links">
+        <a href="#overlay">Overlay</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#demo">Demo</a>
+      </div>
+      <a class="topbar__cta" href="#demo">Request a Demo</a>
+    </nav>
+
+    <div class="hero__content">
+      <div class="hero__copy">
+        <p class="eyebrow">Panomind for PTGui Pro</p>
+        <h1>Review PTGui projects with a live overlay</h1>
+        <p class="hero__lead hero__lead--primary">
+          Generate control points and verticals with AI-assisted tools
+        </p>
+        <p class="hero__lead hero__lead--secondary">
+          Full visual control in one window: links, points, verticals, and color-coded quality
+          inside the Panorama Editor
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#overlay">Inspect the Overlay</a>
+          <a class="button button--ghost" href="#workflow">How It Works</a>
+        </div>
+      </div>
+
+      <div class="hero__visual">
+        <div class="hero-viewer">
+          <div class="hero-viewer__chrome">
+            <span class="hero-viewer__build">March 26, 2026 &middot; v0.1.0</span>
+          </div>
+
+          <div class="hero-viewer__screen">
+            <picture class="hero-frame-wrap">
+              <source srcset="assets/hero-loop.webp" type="image/webp">
+              <img class="hero-frame" src="assets/hero-frame-1.jpg" alt="Panomind overlay animated release capture" decoding="async">
+            </picture>
+            <div class="hero-viewer__glow"></div>
+            <div class="hero-viewer__badge">Latest release capture set</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
   <main>
-    <h1>Panomind</h1>
-    <p>Сайт проекта LVL — скоро здесь что-то появится.</p>
+    <section class="section section--overlay" id="overlay">
+      <div class="section__inner">
+        <div class="overlay-grid">
+          <article class="panel-scene panel-scene--expanded">
+            <div class="editor-surface editor-surface--large">
+              <div class="overlay-layout">
+                <div class="overlay-panel-column">
+                  <p class="eyebrow">Overlay panel and controls</p>
+                  <div class="overlay-panel-stage">
+                <div class="overlay-panel overlay-panel--expanded">
+                  <div class="legend-top">
+                    <span class="legend-title">PTGui Overlay</span>
+                    <div class="legend-actions">
+                      <span class="legend-btn legend-btn--reload">Reload</span>
+                      <span class="legend-btn legend-btn--cp">CP midpoint</span>
+                      <span class="legend-btn legend-btn--icon">x</span>
+                      <span class="legend-btn legend-btn--hide">Hide</span>
+                      <span class="legend-btn legend-btn--icon">-</span>
+                    </div>
+                  </div>
+
+                  <div class="legend-row legend-row--toggle">
+                    <span class="checkbox checkbox--checked"></span>
+                    <span>Drag mode</span>
+                  </div>
+
+                  <div class="legend-row legend-row--colors">
+                    <span class="legend-label">Visible colors</span>
+                    <div class="color-chips">
+                      <span class="color-chip color-chip--blue"></span>
+                      <span class="color-chip color-chip--green"></span>
+                      <span class="color-chip color-chip--yellow"></span>
+                      <span class="color-chip color-chip--red"></span>
+                    </div>
+                  </div>
+
+                  <div class="legend-row legend-row--control">
+                    <span class="legend-label">Min CPs per link</span>
+                    <div class="stepper">
+                      <span class="legend-btn legend-btn--icon">-</span>
+                      <span class="legend-value">10</span>
+                      <span class="legend-btn legend-btn--icon">+</span>
+                    </div>
+                  </div>
+
+                  <div class="legend-row legend-row--control">
+                    <span class="legend-label">CP quality limit</span>
+                    <div class="stepper">
+                      <span class="legend-btn legend-btn--icon">-</span>
+                      <span class="legend-value">3.00</span>
+                      <span class="legend-btn legend-btn--icon">+</span>
+                    </div>
+                  </div>
+
+                  <div class="legend-row legend-row--control">
+                    <span class="legend-label">Link quality limit</span>
+                    <div class="stepper">
+                      <span class="legend-btn legend-btn--icon">-</span>
+                      <span class="legend-value">5.00</span>
+                      <span class="legend-btn legend-btn--icon">+</span>
+                    </div>
+                  </div>
+
+                  <div class="legend-row legend-row--control">
+                    <span class="legend-label">Link curvature</span>
+                    <div class="stepper">
+                      <span class="legend-btn legend-btn--icon">-</span>
+                      <span class="legend-value">0.30</span>
+                      <span class="legend-btn legend-btn--icon">+</span>
+                    </div>
+                  </div>
+
+                  <div class="action-grid">
+                    <span class="legend-btn legend-btn--action">Grid OFF</span>
+                    <span class="legend-btn legend-btn--action">Mask OFF</span>
+                    <span class="legend-btn legend-btn--action">CP OFF</span>
+                    <span class="legend-btn legend-btn--action">Vert OFF</span>
+                  </div>
+
+                  <div class="assistant-block">
+                    <div class="assistant-block__title">Control Points Assistant</div>
+                    <div class="assistant-options">
+                      <div class="legend-row legend-row--toggle legend-row--compact">
+                        <span class="checkbox checkbox--checked"></span>
+                        <span>All neighbors</span>
+                      </div>
+                      <div class="legend-row legend-row--toggle legend-row--compact">
+                        <span class="checkbox"></span>
+                        <span>Missing only</span>
+                      </div>
+                      <div class="legend-row legend-row--toggle legend-row--compact">
+                        <span class="checkbox checkbox--checked"></span>
+                        <span>Exclude sky</span>
+                      </div>
+                      <div class="legend-row legend-row--toggle legend-row--compact">
+                        <span class="checkbox"></span>
+                        <span>Overwrite</span>
+                      </div>
+                    </div>
+                    <span class="legend-btn legend-btn--run legend-btn--run-short">Run CP</span>
+                  </div>
+
+                  <div class="assistant-block">
+                    <div class="assistant-block__title">Vertical Points Assistant</div>
+                    <div class="legend-row legend-row--value">
+                      <span class="legend-label">Row</span>
+                      <span class="legend-value legend-value--wide">Auto -&gt; 1 (-0.5...9 frames) [3/3]</span>
+                    </div>
+                    <div class="legend-row legend-row--value">
+                      <span class="legend-label">Frames</span>
+                      <span class="legend-value legend-value--wide">auto (selected row)</span>
+                    </div>
+                    <div class="legend-row legend-row--control">
+                      <span class="legend-label">Per frame</span>
+                      <div class="stepper">
+                        <span class="legend-btn legend-btn--icon">-</span>
+                        <span class="legend-value">1</span>
+                        <span class="legend-btn legend-btn--icon">+</span>
+                      </div>
+                    </div>
+                    <span class="legend-btn legend-btn--run legend-btn--run-short">Run VP</span>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+                <aside class="overlay-guide" aria-label="Overlay control guide">
+                  <section class="overlay-guide__section overlay-guide__section--hidden">
+                    <h3>Top bar</h3>
+
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--reload">Reload</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Hard restart the overlay and reconnect it to the active PTGui window.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--cp">CP obs0</span>
+                        <span class="legend-btn legend-btn--cp">CP obs1</span>
+                        <span class="legend-btn legend-btn--cp">CP midpoint</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Cycles the displayed control-point source through <code>obs0</code>,
+                        <code>obs1</code>, and <code>midpoint</code> from pts file.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--icon">x</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Closes the overlay and exits the app.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--hide">Hide</span>
+                        <span class="legend-btn legend-btn--hide">Show</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Master visibility toggle for <code>Grid</code>, <code>Mask</code>, <code>CP</code>,
+                        and <code>Vert</code>. <code>Show</code> restores the previous per-layer states.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--icon">-</span>
+                        <span class="legend-btn legend-btn--icon">+</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Collapse the full legend to compact mode or expand it back.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <div class="guide-fragment">
+                          <div class="legend-row legend-row--toggle legend-row--compact">
+                            <span class="checkbox checkbox--checked"></span>
+                            <span>Drag mode</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Enables overlay dragging. Press <code>Esc</code> to leave drag mode.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section class="overlay-guide__section">
+                    <h3>Filters and limits</h3>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-stack">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--colors legend-row--compact">
+                            <span class="legend-label">Visible colors</span>
+                            <div class="color-chips">
+                              <span class="color-chip color-chip--blue"></span>
+                              <span class="color-chip color-chip--green"></span>
+                              <span class="color-chip color-chip--yellow"></span>
+                              <span class="color-chip color-chip--red"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Only selected buckets are shown here: green = good, yellow = warning, red = outlier,
+                        blue = VPC. The blue chip appears only when the graph has VPC data.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--control legend-row--compact">
+                            <span class="legend-label">Min CPs per link</span>
+                            <div class="stepper">
+                              <span class="legend-btn legend-btn--icon">-</span>
+                              <span class="legend-value">10</span>
+                              <span class="legend-btn legend-btn--icon">+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Adjusts by <code>1</code>. Links below this count turn yellow.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--control legend-row--compact">
+                            <span class="legend-label">CP quality limit</span>
+                            <div class="stepper">
+                              <span class="legend-btn legend-btn--icon">-</span>
+                              <span class="legend-value">3.00</span>
+                              <span class="legend-btn legend-btn--icon">+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Adjusts the CP error warning limit in <code>0.1</code> steps.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--control legend-row--compact">
+                            <span class="legend-label">Link quality limit</span>
+                            <div class="stepper">
+                              <span class="legend-btn legend-btn--icon">-</span>
+                              <span class="legend-value">5.00</span>
+                              <span class="legend-btn legend-btn--icon">+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Adjusts the median link warning limit in <code>0.1</code> steps.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--control legend-row--compact">
+                            <span class="legend-label">Link curvature</span>
+                            <div class="stepper">
+                              <span class="legend-btn legend-btn--icon">-</span>
+                              <span class="legend-value">0.30</span>
+                              <span class="legend-btn legend-btn--icon">+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Changes only on-screen arc shape in <code>0.05</code> steps.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section class="overlay-guide__section overlay-guide__section--hidden">
+                    <h3>Layer toggles</h3>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--action">Grid ON</span>
+                        <span class="legend-btn legend-btn--action">Grid OFF</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Shows or hides the grid layer. The chosen state is saved with the overlay settings.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--action">Mask ON</span>
+                        <span class="legend-btn legend-btn--action">Mask OFF</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Shows or hides the dark mask overlay over the Panorama Editor.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--action">CP ON</span>
+                        <span class="legend-btn legend-btn--action">CP OFF</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Shows or hides control-point dots for the currently selected CP source.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--action">Vert ON</span>
+                        <span class="legend-btn legend-btn--action">Vert OFF</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Shows or hides vertical markers generated or loaded for the current project.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section class="overlay-guide__section">
+                    <h3>Control Points Assistant</h3>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="assistant-block__title">Control Points Assistant</div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Assistant block for normal control-point generation (<code>t=0</code>) launched directly from the overlay.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <div class="guide-fragment">
+                          <div class="legend-row legend-row--toggle legend-row--compact">
+                            <span class="checkbox checkbox--checked"></span>
+                            <span>All neighbors</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Runs the broader neighbor search. Turning on <code>Missing only</code> clears it.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <div class="guide-fragment">
+                          <div class="legend-row legend-row--toggle legend-row--compact">
+                            <span class="checkbox checkbox--checked"></span>
+                            <span>Missing only</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Limits CP generation to missing links. It cannot be combined with <code>Overwrite</code>.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <div class="guide-fragment">
+                          <div class="legend-row legend-row--toggle legend-row--compact">
+                            <span class="checkbox checkbox--checked"></span>
+                            <span>Exclude sky</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Skips sky-heavy regions during CP generation.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <div class="guide-fragment">
+                          <div class="legend-row legend-row--toggle legend-row--compact">
+                            <span class="checkbox checkbox--checked"></span>
+                            <span>Overwrite</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Allows replacing existing <code>t0</code> results. If <code>Missing only</code> is on,
+                        the overlay switches back to <code>All neighbors</code>.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--run legend-btn--run-short">Run CP</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Starts the CP Assistant.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section class="overlay-guide__section">
+                    <h3>Vertical Points Assistant</h3>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="assistant-block__title">Vertical Points Assistant</div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Assistant block for vertical control-point generation (<code>t=1</code>) with row and frame targeting.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-stack">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--value legend-row--compact">
+                            <span class="legend-label">Row</span>
+                            <span class="legend-value legend-value--wide">Auto -&gt; 1 (-0.5...9 frames) [3/3]</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Click the field to choose <code>Auto</code> or a detected row. Auto uses the selectable row
+                        closest to the horizon and can show <code>[selectable/total]</code>.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-stack">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--value legend-row--compact">
+                            <span class="legend-label">Frames</span>
+                            <span class="legend-value legend-value--wide">auto (selected row)</span>
+                          </div>
+                        </div>
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--value legend-row--compact">
+                            <span class="legend-label">Frames</span>
+                            <span class="legend-value legend-value--wide">1, 5, 12</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Click to enter PTGui frame numbers as a <code>1-based</code>, comma-separated list.
+                        Leave it empty to use the selected row automatically.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample">
+                        <div class="guide-fragment guide-fragment--row">
+                          <div class="legend-row legend-row--control legend-row--compact">
+                            <span class="legend-label">Per frame</span>
+                            <div class="stepper">
+                              <span class="legend-btn legend-btn--icon">-</span>
+                              <span class="legend-value">1</span>
+                              <span class="legend-btn legend-btn--icon">+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="control-doc__copy">
+                        Adjusts the maximum verticals per selected frame. Range: <code>1..50</code>, with
+                        <code>+/-1</code> step changes.
+                      </p>
+                    </div>
+
+                    <div class="control-doc">
+                      <div class="control-doc__sample sample-inline">
+                        <span class="legend-btn legend-btn--run legend-btn--run-short">Run VP</span>
+                      </div>
+                      <p class="control-doc__copy">
+                        Starts the vertical assistant.
+                      </p>
+                    </div>
+                  </section>
+                </aside>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--workflow" id="workflow">
+      <div class="section__inner">
+        <div class="section__head">
+          <p class="eyebrow">What the overlay does</p>
+          <h2>A structural overlay on top of the PTGui Panorama Editor</h2>
+          <p class="section__lead">
+            Panomind works from your saved <code>.pts</code> project, reconstructing frame positions and
+            control points, then exposing structure that is hard to read in the standard PTGui interface.
+            It complements the Panorama Editor while the project itself stays in PTGui.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>What you see</h3>
+            <p>
+              The overlay surfaces link quality, control-point structure, verticals, and weak areas
+              directly on top of the Panorama Editor, so you can review project health in context.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>What it solves</h3>
+            <p>
+              It cuts review time by making structural issues easier to spot at a glance and by keeping
+              inspection and assistant actions in the same workspace. That is especially useful when
+              you need to review large numbers of PTGui projects quickly.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>How it integrates</h3>
+            <p>
+              PTGui does not expose a public API. Panomind works from the saved <code>.pts</code> project
+              and PTGui state such as <code>Configuration.xml</code>, then redraws the overlay from that
+              file-based state.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>Operational rule</h3>
+            <p>
+              Save in PTGui to see PTGui-side changes reflected in the overlay. If Panomind writes new
+              control points or verticals, reload the current PTGui project in PTGui so those updated
+              <code>.pts</code> changes are pulled back into the editor.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--roadmap" id="roadmap">
+      <div class="section__inner">
+        <div class="section__head">
+          <p class="eyebrow">Roadmap</p>
+          <h2>Where the workflow goes next</h2>
+          <p class="section__lead">
+            The next steps stay focused on faster PTGui-centric review, generation, and project analysis.
+          </p>
+        </div>
+
+        <div class="roadmap-grid">
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Next</span>
+            <h3>Broader batch workflows</h3>
+            <p>Expand control-point and vertical generation into clearer, broader batch-oriented flows.</p>
+          </article>
+
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Planned</span>
+            <h3>More generation controls</h3>
+            <p>Add a larger set of tunable parameters for control-point and vertical generation.</p>
+          </article>
+
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Research</span>
+            <h3>Model and algorithm upgrades</h3>
+            <p>Continue testing new detection and generation models to improve coverage and reliability.</p>
+          </article>
+
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Interactive</span>
+            <h3>Direct overlay editing</h3>
+            <p>Extend the overlay toward actions such as deleting points or links directly from the view.</p>
+          </article>
+
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Analysis</span>
+            <h3><code>.pts</code> analysis and reports</h3>
+            <p>Generate clearer diagnostics and reporting from saved PTGui project files.</p>
+          </article>
+
+          <article class="roadmap-card">
+            <span class="roadmap-card__tag">Platform</span>
+            <h3>macOS after Windows</h3>
+            <p>Keep the current Windows-first release path, then deliver the macOS version afterward.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--demo" id="demo">
+      <div class="section__inner">
+        <div class="demo-card">
+          <div class="demo-card__copy">
+            <p class="eyebrow">Request a Demo</p>
+            <h2>Bring a real PTGui project and see the overlay on top of it.</h2>
+          </div>
+
+          <form class="demo-form" id="demoForm" action="#" method="get">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required placeholder="Your name" autocomplete="name">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="name@example.com" autocomplete="email">
+
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" placeholder="Studio or team" autocomplete="organization">
+
+            <label for="message">Notes</label>
+            <textarea
+              id="message"
+              name="message"
+              placeholder=""
+            ></textarea>
+
+            <button type="submit" class="button button--primary button--submit">Request a Demo</button>
+          </form>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <p>Panomind. Release-faithful landing page aligned to the March 26, 2026 v0.1.0 UI.</p>
+  </footer>
+
+  <script>
+    document.getElementById('demoForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      const subject = encodeURIComponent('Panomind demo request');
+      const body = encodeURIComponent(
+        'Name: ' + name + '\n' +
+        'Email: ' + email + '\n' +
+        'Company: ' + (company || '(not provided)') + '\n\n' +
+        (message || '(no notes)')
+      );
+
+      window.location.href = 'mailto:panomind.app@gmail.com?subject=' + subject + '&body=' + body;
+    });
+  </script>
 </body>
 </html>
