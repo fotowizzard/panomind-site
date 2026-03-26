@@ -27,7 +27,7 @@
         <a href="#overlay">Overlay</a>
         <a href="#workflow">Workflow</a>
         <a href="#roadmap">Roadmap</a>
-        <a href="#demo">Demo</a>
+        <a href="#demo">App</a>
       </div>
       <a class="topbar__cta" href="#demo">Request a Demo</a>
     </nav>
@@ -56,6 +56,14 @@
           </div>
 
           <div class="hero-viewer__screen">
+            <button
+              type="button"
+              class="hero-viewer__expand"
+              id="openViewerPreview"
+              aria-label="Expand animation preview"
+            >
+              Expand
+            </button>
             <picture class="hero-frame-wrap">
               <source srcset="assets/hero-loop.webp" type="image/webp">
               <img class="hero-frame" src="assets/hero-frame-1.jpg" alt="Panomind overlay animated release capture" decoding="async">
@@ -680,6 +688,31 @@
           <div class="demo-card__copy">
             <p class="eyebrow">Request a Demo</p>
             <h2>Bring a real PTGui project and see the overlay on top of it.</h2>
+            <p class="demo-status">
+              Development is active, the first testing release is ready, and the number of demo slots is
+              currently limited.
+            </p>
+
+            <div class="demo-spec-grid">
+              <article class="demo-spec">
+                <span class="demo-spec__tag">Core installer</span>
+                <p><code>panomind-win-x64-vX.Y.Z.exe</code> is the main Windows release package.</p>
+              </article>
+
+              <article class="demo-spec">
+                <span class="demo-spec__tag">Optional GPU runtime</span>
+                <p>
+                  <code>panomind-gpu-runtime-cu130-vX.Y.Z.exe</code> is for NVIDIA GPUs and is used only
+                  to accelerate the Control Points Assistant during control-point generation.
+                </p>
+              </article>
+
+              <article class="demo-spec">
+                <span class="demo-spec__tag">Before you start</span>
+                <p>Windows 11, 64-bit </p> 
+                <p>with <code>PTGui Pro</code> already installed.</p>
+              </article>
+            </div>
           </div>
 
           <form class="demo-form" id="demoForm" action="#" method="get">
@@ -707,10 +740,68 @@
   </main>
 
   <footer class="footer">
-    <p>Panomind. Release-faithful landing page aligned to the March 26, 2026 v0.1.0 UI.</p>
+    <p>Panomind.com. Release-faithful landing page aligned to the March 26, 2026 v0.1.0 UI.</p>
   </footer>
 
+  <div class="viewer-modal" id="viewerModal" aria-hidden="true">
+    <div class="viewer-modal__backdrop" data-close-preview></div>
+    <div class="viewer-modal__dialog" role="dialog" aria-modal="true" aria-label="Expanded animation preview">
+      <div class="viewer-modal__bar">
+        <span class="viewer-modal__title">Animation preview</span>
+        <button type="button" class="viewer-modal__close" id="closeViewerPreview">Close</button>
+      </div>
+      <div class="viewer-modal__screen">
+        <picture class="hero-frame-wrap">
+          <source srcset="assets/hero-loop.webp" type="image/webp">
+          <img class="hero-frame" src="assets/hero-frame-1.jpg" alt="Panomind overlay animated release capture" decoding="async">
+        </picture>
+        <div class="hero-viewer__glow"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    const viewerModal = document.getElementById('viewerModal');
+    const openViewerPreview = document.getElementById('openViewerPreview');
+    const closeViewerPreview = document.getElementById('closeViewerPreview');
+
+    function closePreview() {
+      if (!viewerModal) {
+        return;
+      }
+
+      viewerModal.classList.remove('viewer-modal--open');
+      viewerModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('body--preview-open');
+    }
+
+    function openPreview() {
+      if (!viewerModal) {
+        return;
+      }
+
+      viewerModal.classList.add('viewer-modal--open');
+      viewerModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('body--preview-open');
+    }
+
+    if (openViewerPreview && closeViewerPreview && viewerModal) {
+      openViewerPreview.addEventListener('click', openPreview);
+      closeViewerPreview.addEventListener('click', closePreview);
+
+      viewerModal.addEventListener('click', function (event) {
+        if (event.target instanceof HTMLElement && event.target.hasAttribute('data-close-preview')) {
+          closePreview();
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && viewerModal.classList.contains('viewer-modal--open')) {
+          closePreview();
+        }
+      });
+    }
+
     document.getElementById('demoForm').addEventListener('submit', function (event) {
       event.preventDefault();
 
