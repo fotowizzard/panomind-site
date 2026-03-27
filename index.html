@@ -762,25 +762,13 @@
             </div>
           </div>
 
-          <form class="demo-form" id="demoForm" action="#" method="get">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" required placeholder="Your name" autocomplete="name">
-
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required placeholder="name@example.com" autocomplete="email">
-
-            <label for="company">Company</label>
-            <input type="text" id="company" name="company" placeholder="Studio or team" autocomplete="organization">
-
-            <label for="message">Notes</label>
-            <textarea
-              id="message"
-              name="message"
-              placeholder=""
-            ></textarea>
-
-            <button type="submit" class="button button--primary button--submit">Request a Demo</button>
-          </form>
+          <div class="demo-contact-panel" aria-label="Demo requests">
+            <p class="demo-contact-panel__eyebrow">Contact</p>
+            <p class="demo-contact-panel__text">
+              For demo requests, write to
+              <a href="mailto:panomind.app@gmail.com">panomind.app@gmail.com</a>.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -849,24 +837,6 @@
       });
     }
 
-    document.getElementById('demoForm').addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const company = document.getElementById('company').value.trim();
-      const message = document.getElementById('message').value.trim();
-
-      const subject = encodeURIComponent('Panomind demo request');
-      const body = encodeURIComponent(
-        'Name: ' + name + '\n' +
-        'Email: ' + email + '\n' +
-        'Company: ' + (company || '(not provided)') + '\n\n' +
-        (message || '(no notes)')
-      );
-
-      window.location.href = 'mailto:panomind.app@gmail.com?subject=' + subject + '&body=' + body;
-    });
   </script>
 </body>
 </html>
