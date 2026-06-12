@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дмитрий Пелепец — река занятости, 2007–2026</title>
+<meta name="description" content="19 years of 360° production and AI automation: top-tier stitching from gigapixels to whole cities, tour engines, full-stack tools and multi-agent AI. A month-by-month river of work, 2007–2026.">
+<meta property="og:title" content="Dmitry Pelepets — 360° production & AI automation">
+<meta property="og:description" content="19 years, 100+ clients across 15+ countries. A month-by-month river of work: gigapixel stitching, golf Street View, tour platforms and own AI products.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://www.panomind.pro/portfolio/">
+<link rel="canonical" href="https://www.panomind.pro/portfolio/">
+<meta name="theme-color" content="#0c1016">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1016'/%3E%3Cpath d='M14 44c6-8 10-22 18-22s10 14 18 22' stroke='%235b9dff' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="river-data.js"></script>
+<style>
+  :root{--bg:#0c1016;--panel:#141b25;--panel2:#10161e;--line:#243040;
+    --tx:#eef3f9;--dim:#90a0b5;--accent:#5b9dff;--accent2:#7ee0c0;--gold:#e3b341;}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:16px/1.6 "Inter","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  nav{position:sticky;top:0;z-index:40;background:rgba(12,16,22,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:54px}
+  nav .logo{font-weight:800}
+  nav .right{display:flex;align-items:center;gap:14px}
+  #yearbadge{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:110px;text-align:right;opacity:0;transition:opacity .25s}
+  #yearbadge b{color:var(--accent2);font-size:15px}
+  #langsw{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  #langsw button{background:transparent;border:0;color:var(--dim);font:600 12.5px/1 inherit;
+    padding:8px 11px;cursor:pointer}
+  #langsw button.on{background:var(--panel);color:var(--tx)}
+  nav a.cta{color:#06101f;background:var(--accent);padding:7px 14px;border-radius:8px;font-weight:600;font-size:14px}
+
+  .hero{padding:56px 0 36px}
+  .hero .kick{color:var(--accent2);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+  .hero h1{font-size:clamp(30px,4.4vw,46px);font-weight:800;letter-spacing:-.02em;margin:0;max-width:18ch}
+  .hero .role{font-size:clamp(16px,2vw,20px);color:var(--accent);font-weight:600;margin:12px 0 0}
+  .hero p{font-size:16.5px;color:var(--dim);max-width:64ch;margin:18px 0 0}
+  .hero .cta{display:flex;gap:11px;flex-wrap:wrap;margin-top:24px}
+  .btn{padding:10px 18px;border-radius:9px;font-weight:600;font-size:14.5px;border:1px solid var(--line);display:inline-flex;gap:7px;align-items:center}
+  .btn.p{background:var(--accent);color:#06101f;border-color:transparent}
+  .btn.g{background:var(--panel)}
+  .stats{display:flex;gap:30px;flex-wrap:wrap;margin-top:32px;padding-top:22px;border-top:1px solid var(--line)}
+  .stats .n{font-size:22px;font-weight:800}.stats .l{font-size:12.5px;color:var(--dim)}
+
+  .secthead{padding:30px 0 4px}
+  .secthead h2{font-size:24px;font-weight:800;margin:0}
+  .secthead p{color:var(--dim);font-size:15px;margin:6px 0 0;max-width:70ch}
+  .secthead .hrow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .collbtn{background:var(--panel);border:1px solid var(--line);color:var(--tx);
+    border-radius:8px;padding:8px 16px;font:600 13.5px/1 inherit;cursor:pointer;margin-top:14px}
+  .collbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ---- навыки ---- */
+  #skillgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .skg{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 17px}
+  .skg h3{font-size:14.5px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  .skg h3 i{width:10px;height:10px;border-radius:3px;flex:none}
+  .skg .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .skg .chips span{font-size:12.5px;color:#cdd8e6;background:var(--panel2);border:1px solid var(--line);
+    border-radius:7px;padding:3px 10px}
+  .skg .chips span.hot{border-color:#3d5068;color:var(--tx);font-weight:600}
+  @media(max-width:900px){#skillgrid{grid-template-columns:1fr}}
+
+  .gxlink{margin:18px 0 0}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;padding:14px 0 10px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
+  .legend i{width:12px;height:12px;border-radius:3px}
+
+  /* ---- река ---- */
+  #riverbox{position:relative;margin-top:10px}
+  #riv{display:block}
+  #hoverband{position:absolute;left:0;right:0;height:0;background:rgba(91,157,255,.07);
+    border-top:1px solid rgba(91,157,255,.25);border-bottom:1px solid rgba(91,157,255,.25);
+    opacity:0;pointer-events:none;z-index:3}
+  #tip{position:absolute;z-index:30;background:#0f1620;border:1px solid #2c3a4c;border-radius:10px;
+    padding:10px 13px;font-size:13px;line-height:1.5;box-shadow:0 8px 26px rgba(0,0,0,.55);
+    pointer-events:none;opacity:0;max-width:300px}
+  #tip .m{font-weight:800;font-size:14px;margin-bottom:5px;color:var(--accent2)}
+  #tip ul{margin:0;padding:0;list-style:none}
+  #tip li{display:flex;align-items:center;gap:7px;color:#cdd8e6}
+  #tip li i{width:9px;height:9px;border-radius:2.5px;flex:none}
+
+  .ev{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px 9px 14px;font-size:13.2px;line-height:1.45;color:#cdd8e6;
+    box-shadow:0 2px 10px rgba(0,0,0,.35);z-index:5}
+  .ev::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:var(--c,#5b9dff)}
+  .ev .d{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+  .ev .d b{color:var(--c,#9fb3c8)}
+  .ev.release .d b,.ev.milestone .d b{color:var(--gold)}
+  .evline{position:absolute;border-top:1.5px dashed #3d5068;height:0;z-index:4}
+  .evdot{position:absolute;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg);z-index:6}
+
+  /* ---- карточки ---- */
+  #cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;scroll-margin-top:80px}
+  .pcard .top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .pcard .dot{width:11px;height:11px;border-radius:3px;flex:none;position:relative;top:1px}
+  .pcard h3{font-size:17px;font-weight:700;margin:0}
+  .pcard .kind{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;color:#06101f;font-weight:700;background:#9fb3c8}
+  .pcard .meta{font-size:12.5px;color:var(--dim);margin:4px 0 9px}
+  .pcard .meta b{color:var(--accent2);font-weight:600}
+  .pcard .sum{font-size:14px;color:#cdd8e6;margin:0 0 10px}
+  .pcard ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+  .pcard li{font-size:13px;padding-left:14px;position:relative}
+  .pcard li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+  .pcard .tech{margin-top:11px;display:flex;flex-wrap:wrap;gap:5px;border-top:1px solid var(--line);padding-top:9px}
+  .pcard .tech span{font-size:11px;color:var(--dim);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+  .pcard.flash{outline:2px solid var(--accent);outline-offset:2px}
+
+  .prebox{border:1px dashed var(--line);border-radius:12px;color:var(--dim);font-size:14px;
+    padding:14px 18px;margin:26px 0 0}
+
+  footer{border-top:1px solid var(--line);padding:46px 0 60px;text-align:center;margin-top:54px}
+  footer .big{font-size:22px;font-weight:800;margin-bottom:6px}
+  footer .dim{color:var(--dim)}
+  footer .links{margin-top:15px;font-weight:600}
+  footer .links a{color:var(--accent);margin:0 9px}
+
+  @media(max-width:900px){
+    #cards{grid-template-columns:1fr}
+    .ev{left:90px!important;right:8px!important;width:auto!important;background:rgba(20,27,37,.93);backdrop-filter:blur(3px)}
+    .evline{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav><div class="wrap"><div class="logo" id="i-logo">Дмитрий Пелепец</div>
+  <div class="right"><div id="yearbadge"><span id="i-badge">река:</span> <b>2026</b></div>
+  <div id="langsw"><button data-l="ru">RU</button><button data-l="en">EN</button></div>
+  <a class="cta" id="i-contact" href="mailto:fotowzrd@gmail.com">Связаться</a></div></div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kick" id="i-kick"></div>
+  <h1 id="i-h1"></h1>
+  <div class="role" id="i-role"></div>
+  <p id="i-lead"></p>
+  <div class="cta">
+    <a class="btn p" href="#river" id="i-riverbtn"></a>
+    <a class="btn g" href="https://www.linkedin.com/in/fotowizard" target="_blank" rel="noopener">in&nbsp;LinkedIn</a>
+    <a class="btn g" href="https://www.panomind.pro" target="_blank" rel="noopener">◆ Panomind</a>
+    <a class="btn g" href="https://github.com/fotowizzard" target="_blank" rel="noopener">⌥ GitHub</a>
+  </div>
+  <div class="stats" id="i-stats"></div>
+</div></header>
+
+<section id="skills"><div class="wrap">
+  <div class="secthead">
+    <h2 id="i-skh2"></h2>
+    <p id="i-skp"></p>
+  </div>
+  <div id="skillgrid"></div>
+  <p class="gxlink"><a class="btn g" id="i-gxlink"
+    href="https://www.linkedin.com/in/fotowizard/details/featured/" target="_blank" rel="noopener"></a></p>
+</div></section>
+
+<section id="river"><div class="wrap">
+  <div class="secthead">
+    <h2 id="i-rivh2"></h2>
+    <p id="i-rivp"></p>
+    <button id="rivtoggle" class="collbtn"></button>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div id="riverbox">
+    <svg id="riv"></svg>
+    <div id="hoverband"></div>
+    <div id="events"></div>
+    <div id="tip"></div>
+  </div>
+</div></section>
+
+<section id="clients"><div class="wrap">
+  <div class="secthead">
+    <h2 id="i-cardh2"></h2>
+    <p id="i-cardp"></p>
+  </div>
+  <div id="cards"></div>
+  <div class="prebox" id="i-prebox"></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="big" id="i-fbig"></div>
+  <div class="dim" id="i-fdim"></div>
+  <div class="links">
+    <a href="mailto:fotowzrd@gmail.com">fotowzrd@gmail.com</a>·
+    <a href="https://www.linkedin.com/in/fotowizard" target="_blank" rel="noopener">linkedin.com/in/fotowizard</a>·
+    <a href="https://www.panomind.pro" target="_blank" rel="noopener">panomind.pro</a>·
+    <a href="https://github.com/fotowizzard" target="_blank" rel="noopener">github.com/fotowizzard</a>
+  </div>
+</div></footer>
+
+<script>
+const R = window.RIVER;
+const COLOR = {bik:"#6e7681", fotowizard:"#58a6ff", prospekt:"#2fb6a9", upwork:"#3fb950",
+  nasa:"#9ecbff", rareborne:"#4f8cc9", h360:"#6aa3e0", littleplanet:"#58d0ff", t3h:"#7fb3d5",
+  austria:"#5b9dd0", technosoft:"#8957e5", ruby:"#c97b4a", yetivisit:"#a371f7", bouva:"#1f6feb",
+  nft:"#e3b341", skyfox:"#2ea043", vp:"#bc8cff", panomind:"#f778ba", aitools:"#ff9bce"};
+const KINDC = {client:"#58a6ff", role:"#6e7681", channel:"#3fb950", own:"#f778ba"};
+const SD = Object.fromEntries(R.streams.map(s=>[s.id,s]));
+
+/* ---------------- словари ---------------- */
+const UI = {
+ru:{
+  logo:"Дмитрий Пелепец", title:"Дмитрий Пелепец — река занятости, 2007–2026",
+  contact:"Связаться", badge:"река:",
+  kick:"Белгород · удалённо по всему миру",
+  h1:"360°-производство и AI-автоматизация",
+  role:"Превращаю визуальное производство в системы.",
+  lead:"19 лет: съёмка и сшивка высшего уровня — от гигапикселей до целых городов — и автоматизация самого ремесла: пайплайны, full-stack-инструменты и мульти-агентный AI.",
+  riverbtn:"Река занятости ↓",
+  stats:[["19 лет","производство и инженерия"],["100+ клиентов","в 15+ странах"],
+         ["Top Rated","Upwork · ниша 360°"]],
+  skh2:"Навыки",
+  skp:"Чем работаю — от съёмки до продакшн-кода.",
+  gxlink:"Примеры обработки — в Featured на LinkedIn ↗",
+  rivh2:"Река занятости — месяц за месяцем",
+  rivp:"Исток сверху — июнь 2026, дальше вниз — назад во времени до 2007 года. Каждая лента — направление работы: клиент, роль или собственный продукт; ширина — насколько месяц был занят этой работой. Наведите на строку месяца, чтобы увидеть всё активное; клик по ленте — карточка с деталями.",
+  cardh2:"Ленты реки — подробно",
+  cardp:"Что именно делалось в каждом направлении.",
+  prebox:"До реки: 2002–2007 — вуз, специальность «защита информации»; первые предпринимательские пробы. Река начинается с первой работы — июнь 2007.",
+  fbig:"Давайте сделаем то, что доедет до релиза.",
+  fdim:"Открыт к проектам и ролям в AI-инструментах, автоматизации и full-stack — удалённо.",
+  kinds:{client:"клиент",role:"роль/найм",channel:"платформа",own:"свой продукт"},
+  widthnote:"ширина = занятость месяца",
+  mon:["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"],
+  types:{start:"старт",end:"финал",release:"релиз",media:"пресса",milestone:"веха",note:""},
+  now:"сейчас ↓", source:"исток пути: июнь 2007 ↑",
+  collapse:"Свернуть ↑", expand:"Развернуть ↓",
+},
+en:{
+  logo:"Dmitry Pelepets", title:"Dmitry Pelepets — the river of work, 2007–2026",
+  contact:"Get in touch", badge:"river:",
+  kick:"Belgorod · remote worldwide",
+  h1:"360° production & AI automation",
+  role:"I turn visual production into systems.",
+  lead:"19 years: top-tier shooting and stitching — from gigapixels to whole cities — and automating the craft itself: pipelines, full-stack tools and multi-agent AI.",
+  riverbtn:"The river of work ↓",
+  stats:[["19 years","production & engineering"],["100+ clients","across 15+ countries"],
+         ["Top Rated","Upwork · 360° niche"]],
+  skh2:"Skills",
+  skp:"What I work with — from capture to production code.",
+  gxlink:"Processing samples — in my LinkedIn Featured ↗",
+  rivh2:"The river of work — month by month",
+  rivp:"The source is at the top — June 2026; scrolling down moves back in time to 2007. Each stream is a line of work: a client, a role or an own product; its width shows how busy that month was. Hover a month row to see everything active; click a stream for details.",
+  cardh2:"The streams in detail",
+  cardp:"What exactly was done in each line of work.",
+  prebox:"Before the river: 2002–2007 — university, information security major; first business attempts. The river starts with the first job — June 2007.",
+  fbig:"Let's build things that actually ship.",
+  fdim:"Open to projects and roles in AI tooling, automation and full-stack — remote.",
+  kinds:{client:"client",role:"role/staff",channel:"platform",own:"own product"},
+  widthnote:"width = how busy the month was",
+  mon:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  types:{start:"start",end:"end",release:"release",media:"press",milestone:"milestone",note:""},
+  now:"now ↓", source:"the source: June 2007 ↑",
+  collapse:"Collapse ↑", expand:"Expand ↓",
+}};
+let LANG = localStorage.getItem("pf-lang") || "en";
+const T = x => (x && typeof x === "object" && ("ru" in x)) ? x[LANG] : x;
+const L = () => UI[LANG];
+
+
+/* ---------------- навыки ---------------- */
+const SKILLS = [
+ {c:"#58a6ff", t:{ru:"360°-производство",en:"360° production"}, items:[
+   {ru:"PTGui · 15+ лет",en:"PTGui · 15+ yrs",hot:1},
+   {ru:"гигапиксели",en:"gigapixels"},
+   {ru:"сложный стичинг, ремонт швов",en:"complex stitching, seam repair"},
+   {ru:"HDR и цветокоррекция",en:"HDR & color grading"},
+   {ru:"Photoshop / Lightroom · 15+ лет",en:"Photoshop / Lightroom · 15+ yrs"},
+   {ru:"ретушь зенита/надира",en:"zenith/nadir retouching"},
+   "sky replacement",
+   {ru:"аэросъёмка (дроны)",en:"aerial (drones)"},
+   {ru:"ортофото (Agisoft Metashape)",en:"orthophoto (Agisoft Metashape)"}]},
+ {c:"#2fb6a9", t:{ru:"Туры и веб",en:"Tours & web"}, items:[
+   {ru:"krpano + KML-слои",en:"krpano + KML layers",hot:1},
+   "Pano2VR","Panotour",
+   {ru:"WebVR (A-Frame)",en:"WebVR (A-Frame)"},
+   "JavaScript / TypeScript","React","PHP",
+   {ru:"Android-приложения туров",en:"tour Android apps"}]},
+ {c:"#8957e5", t:{ru:"Разработка и инфраструктура",en:"Engineering & infrastructure"}, items:[
+   {ru:"Python (NumPy/SciPy)",en:"Python (NumPy/SciPy)",hot:1},
+   "OpenCV","ONNX","PySide6","Node.js","Supabase","Docker / Coolify",
+   {ru:"DNS / SSL / почта",en:"DNS / SSL / mail"},
+   {ru:"Stripe-биллинг",en:"Stripe billing"}]},
+ {c:"#f778ba", t:{ru:"AI и автоматизация",en:"AI & automation"}, items:[
+   {ru:"мульти-агентная оркестрация (Claude/Codex)",en:"multi-agent orchestration (Claude/Codex)",hot:1},
+   {ru:"CV-модели: LoFTR/SIFT, segformer",en:"CV models: LoFTR/SIFT, segformer"},
+   {ru:"AI в продакшн-пайплайнах",en:"AI in production pipelines"},
+   {ru:"пакетные конвейеры (n8n, скрипты)",en:"batch pipelines (n8n, scripts)"},
+   "Topaz / Firefly"]},
+];
+
+/* ---------------- статические тексты ---------------- */
+function applyStatic(){
+  const u = L();
+  document.documentElement.lang = LANG;
+  document.title = u.title;
+  const set=(id,v)=>{document.getElementById(id).textContent=v};
+  set("i-logo",u.logo); set("i-contact",u.contact); set("i-badge",u.badge);
+  set("i-kick",u.kick); set("i-h1",u.h1); set("i-role",u.role); set("i-lead",u.lead);
+  set("i-riverbtn",u.riverbtn);
+  document.getElementById("i-stats").innerHTML =
+    u.stats.map(([n,l])=>`<div><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+  set("i-rivh2",u.rivh2); set("i-rivp",u.rivp);
+  set("i-cardh2",u.cardh2); set("i-cardp",u.cardp); set("i-prebox",u.prebox);
+  set("i-fbig",u.fbig); set("i-fdim",u.fdim);
+  set("i-skh2",u.skh2); set("i-skp",u.skp);
+  document.getElementById("skillgrid").innerHTML = SKILLS.map(g=>
+    `<div class="skg"><h3><i style="background:${g.c}"></i>${T(g.t)}</h3>
+     <div class="chips">${g.items.map(it=>`<span${it.hot?' class="hot"':''}>${T(it)}</span>`).join("")}</div></div>`).join("");
+  set("i-gxlink",u.gxlink);
+  document.querySelectorAll("#langsw button").forEach(b=>b.classList.toggle("on",b.dataset.l===LANG));
+  applyCollapse();
+}
+
+/* ---------------- сворачивание реки ---------------- */
+function applyCollapse(){
+  const c = localStorage.getItem("pf-riv") !== "1";   // по умолчанию свернуто
+  document.getElementById("riverbox").style.display = c ? "none" : "";
+  document.getElementById("legend").style.display = c ? "none" : "";
+  document.getElementById("rivtoggle").textContent = c ? L().expand : L().collapse;
+}
+document.getElementById("rivtoggle").addEventListener("click", ()=>{
+  const c = localStorage.getItem("pf-riv") !== "1";
+  localStorage.setItem("pf-riv", c ? "1" : "0");
+  applyCollapse();
+});
+document.querySelectorAll('a[href="#river"]').forEach(a=>a.addEventListener("click", ()=>{
+  localStorage.setItem("pf-riv", "1"); applyCollapse();
+}));
+
+/* ---------------- геометрия (не зависит от языка) ---------------- */
+const box = document.getElementById("riverbox");
+const W = box.clientWidth, MOB = W < 760;
+const MH = 34;
+const N = R.months.length, H = N*MH + 40;
+const TICKS = MOB ? 46 : 64;
+const idx = Object.fromEntries(R.months.map((m,i)=>[m.ym,i]));
+const yOf = ym => (idx[ym] ?? 0)*MH + MH/2 + 20;
+
+const chrono = R.streams.slice().sort((a,b)=>a.start.localeCompare(b.start)||a.end.localeCompare(b.end));
+const laneEnd = [];
+chrono.forEach(s=>{
+  let l = laneEnd.findIndex(e=>e < s.start);
+  if(l<0){l = laneEnd.length; laneEnd.push("");}
+  laneEnd[l] = s.end; s.lane = l;
+});
+const NL = laneEnd.length;
+const RIVW = MOB ? (W-TICKS-10) : Math.min(440, W*0.40);
+const GAP = 8, LW = Math.floor((RIVW-(NL-1)*GAP)/NL);
+const laneX = l => TICKS + 14 + l*(LW+GAP) + LW/2;
+const riverRight = TICKS + 14 + NL*(LW+GAP);
+const EVX = MOB ? TICKS+10 : riverRight + 36;
+const EVW = MOB ? W-TICKS-20 : W - EVX;
+
+const wOf = {};
+R.months.forEach(m=>m.active.forEach(a=>{ (wOf[a.id]=wOf[a.id]||{})[m.ym]=Math.max(3,a.w*LW); }));
+
+/* ---------------- рендер (перерисовывается при смене языка) ---------------- */
+const svg = d3.select("#riv").attr("width",W);
+const evbox = document.getElementById("events");
+const cbox = document.getElementById("cards");
+const lg = document.getElementById("legend");
+const area = d3.area().y(d=>d.y).x0(d=>d.x-d.w/2).x1(d=>d.x+d.w/2).curve(d3.curveBasis);
+
+function render(){
+  const u = L();
+  svg.selectAll("*").remove(); evbox.innerHTML=""; cbox.innerHTML=""; lg.innerHTML="";
+
+  /* легенда */
+  Object.entries(u.kinds).forEach(([k,l])=>lg.insertAdjacentHTML("beforeend",
+    `<span><i style="background:${KINDC[k]}"></i>${l}</span>`));
+  lg.insertAdjacentHTML("beforeend",
+    `<span><i style="background:transparent;border:1px dashed #44566c"></i>${u.widthnote}</span>`);
+
+  /* фон: линии месяцев, тики, годы */
+  const g0 = svg.append("g");
+  R.months.forEach((m,i)=>{
+    const [y,mo] = m.ym.split("-").map(Number), Y = i*MH+20;
+    const jan = mo===1, first = m.ym===R.start;
+    g0.append("line").attr("x1",TICKS).attr("x2",MOB?W:riverRight+16).attr("y1",Y).attr("y2",Y)
+      .attr("stroke", jan?"#2c3a4c":"#161e29").attr("stroke-width",jan?1.5:1);
+    if(jan||first) g0.append("text").attr("x",6).attr("y",Y+(jan?-6:16)).attr("font-size",17)
+      .attr("font-weight",800).attr("fill","#8fa6c4").text(y);
+    g0.append("text").attr("x",TICKS-8).attr("y",Y+MH/2+4).attr("text-anchor","end")
+      .attr("font-size",10.5).attr("fill", mo===1?"#7e93ad":"#44566c").text(u.mon[mo-1]);
+  });
+  svg.append("text").attr("x",TICKS+14).attr("y",12).attr("font-size",12).attr("font-weight",700)
+    .attr("fill","#7ee0c0").text(u.now);
+  svg.append("text").attr("x",TICKS+14).attr("y",H-6).attr("font-size",12).attr("font-weight",700)
+    .attr("fill","#8fa6c4").text(u.source);
+
+  /* ленты */
+  R.streams.forEach(s=>{
+    const ms = R.months.filter(m=>wOf[s.id]?.[m.ym]);
+    if(!ms.length) return;
+    const x = laneX(s.lane);
+    const pts = ms.map(m=>({y:yOf(m.ym), x, w:wOf[s.id][m.ym]}));
+    pts.unshift({y:pts[0].y-MH*0.45, x, w:Math.max(2,pts[0].w*0.25)});
+    pts.push({y:pts[pts.length-1].y+MH*0.45, x, w:Math.max(2,pts[pts.length-1].w*0.25)});
+    svg.append("path").attr("d",area(pts)).attr("fill",COLOR[s.id]||"#888").attr("opacity",.88)
+      .style("cursor","pointer").on("click",()=>showCard(s.id))
+      .append("title").text(T(s.name));
+    const spanPx = pts[pts.length-1].y-pts[0].y;
+    const label = T(s.short)||T(s.name);
+    const vlabel = (yy,op)=>{
+      svg.append("text").attr("transform",`translate(${x+4},${yy}) rotate(90)`)
+        .attr("font-size",11.5).attr("font-weight",700).attr("fill","#0e1117").attr("opacity",op)
+        .attr("paint-order","stroke").attr("stroke","rgba(255,255,255,.5)").attr("stroke-width",2.5)
+        .style("cursor","pointer").text(label).on("click",()=>showCard(s.id));
+    };
+    if(spanPx > 90){
+      vlabel(pts[0].y+18, 1);
+      for(let yy=pts[0].y+720; yy<pts[pts.length-1].y-110; yy+=720) vlabel(yy, .75);
+    } else {
+      svg.append("text").attr("x",x+LW/2+5).attr("y",pts[0].y+10).attr("font-size",11)
+        .attr("font-weight",700).attr("fill",COLOR[s.id]).style("cursor","pointer")
+        .text(label).on("click",()=>showCard(s.id));
+    }
+  });
+
+  /* события */
+  let lastBottom = 0;
+  const evs = [...R.events].sort((a,b)=> (idx[a.ym]??0)-(idx[b.ym]??0));
+  evs.forEach(e=>{
+    const y = yOf(e.ym), c = e.stream? (COLOR[e.stream]||"#5b9dff") : "#5b9dff";
+    const el = document.createElement("div");
+    el.className = "ev "+e.type;
+    const [yy,mm] = e.ym.split("-").map(Number);
+    const tag = u.types[e.type] ? ` · <b>${u.types[e.type]}</b>` : "";
+    el.innerHTML = `<div class="d">${u.mon[mm-1]} ${yy}${tag}</div>${T(e.text)}`;
+    el.style.cssText = `left:${EVX}px;width:${EVW}px;--c:${c}`;
+    evbox.appendChild(el);
+    const top = Math.max(y-14, lastBottom+6);
+    el.style.top = top+"px"; lastBottom = top + el.offsetHeight;
+    if(!MOB){
+      const x1 = e.stream && SD[e.stream] ? laneX(SD[e.stream].lane) : riverRight;
+      /* диагональ: точка месяца на ленте -> середина карточки */
+      svg.append("line").attr("x1",x1+6).attr("y1",y).attr("x2",EVX-3)
+        .attr("y2",top+el.offsetHeight/2)
+        .attr("stroke","#3d5068").attr("stroke-width",1.5).attr("stroke-dasharray","3 4");
+      const dot = document.createElement("div"); dot.className="evdot";
+      dot.style.cssText = `left:${x1-4.5}px;top:${y-4.5}px;background:${c}`;
+      evbox.appendChild(dot);
+    }
+  });
+  const totalH = Math.max(H, lastBottom+30);
+  svg.attr("height", totalH); box.style.height = totalH+"px";
+
+  /* карточки */
+  const order = R.streams.slice().sort((a,b)=>b.end.localeCompare(a.end)||b.start.localeCompare(a.start));
+  order.forEach(s=>{
+    const c = s.card; if(!c) return;
+    const el = document.createElement("div");
+    el.className="pcard"; el.id = "c-"+s.id;
+    el.innerHTML = `<div class="top"><span class="dot" style="background:${COLOR[s.id]}"></span>
+        <h3>${T(s.name)}</h3><span class="kind" style="background:${KINDC[s.kind]}">${u.kinds[s.kind]}</span></div>
+      <div class="meta"><b>${T(c.period)}</b> · ${T(c.geo)}</div>
+      <div class="sum">${T(c.summary)}</div>
+      <ul>${c.projects.map(p=>`<li>${T(p)}</li>`).join("")}</ul>
+      <div class="tech">${c.tech.map(t=>`<span>${T(t)}</span>`).join("")}</div>`;
+    cbox.appendChild(el);
+  });
+}
+
+function showCard(id){
+  const el = document.getElementById("c-"+id); if(!el) return;
+  el.scrollIntoView({behavior:"smooth",block:"center"});
+  el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1600);
+}
+
+/* ---------------- ховер: занятость месяца ---------------- */
+const tip = document.getElementById("tip"), band = document.getElementById("hoverband");
+box.addEventListener("mousemove",ev=>{
+  const r = box.getBoundingClientRect(), y = ev.clientY - r.top, x = ev.clientX - r.left;
+  const i = Math.floor((y-20)/MH);
+  if(i<0||i>=N||(!MOB&&x>EVX-10)){tip.style.opacity=0;band.style.opacity=0;return;}
+  const m = R.months[i];
+  if(!m){tip.style.opacity=0;band.style.opacity=0;return;}
+  const [yy,mm] = m.ym.split("-").map(Number);
+  const act = m.active.slice().sort((a,b)=>b.w-a.w);
+  tip.innerHTML = `<div class="m">${L().mon[mm-1]} ${yy}</div>`+
+    (act.length? `<ul>${act.map(a=>`<li><i style="background:${COLOR[a.id]}"></i>${T(SD[a.id].name)}</li>`).join("")}</ul>`
+               : `<span style="color:var(--dim)">—</span>`);
+  tip.style.opacity = 1;
+  tip.style.left = Math.min(x+18, W-320)+"px";
+  tip.style.top = (i*MH+20+MH+4)+"px";
+  band.style.top = (i*MH+20)+"px"; band.style.height = MH+"px"; band.style.opacity = 1;
+});
+box.addEventListener("mouseleave",()=>{tip.style.opacity=0;band.style.opacity=0;});
+
+/* ---------------- бейдж года ---------------- */
+const badge = document.getElementById("yearbadge"), bb = badge.querySelector("b");
+let bv = "";
+addEventListener("scroll",()=>{
+  const r = box.getBoundingClientRect();
+  if(r.top < innerHeight*0.4 && r.bottom > innerHeight*0.4){
+    const i = Math.min(N-1, Math.max(0, Math.floor((innerHeight*0.4 - r.top - 20)/MH)));
+    const [yy,mm] = R.months[i].ym.split("-");
+    const v = `${L().mon[+mm-1]} ${yy}`;
+    if(v!==bv){bb.textContent=v;bv=v;}
+    badge.style.opacity = 1;
+  } else badge.style.opacity = 0;
+},{passive:true});
+
+/* ---------------- переключатель языка ---------------- */
+document.querySelectorAll("#langsw button").forEach(b=>b.addEventListener("click",()=>{
+  if(b.dataset.l===LANG) return;
+  LANG = b.dataset.l; localStorage.setItem("pf-lang",LANG);
+  applyStatic(); render();
+}));
+
+applyStatic(); render();
+</script>
+</body>
+</html>
