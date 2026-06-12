@@ -327,12 +327,13 @@ function applyCollapse(){
   document.getElementById("rivtoggle").textContent = c ? L().expand : L().collapse;
 }
 document.getElementById("rivtoggle").addEventListener("click", ()=>{
-  const c = localStorage.getItem("pf-riv") !== "1";
-  localStorage.setItem("pf-riv", c ? "1" : "0");
+  const wasCollapsed = localStorage.getItem("pf-riv") !== "1";
+  localStorage.setItem("pf-riv", wasCollapsed ? "1" : "0");
   applyCollapse();
+  if (wasCollapsed) render();   // высоты карточек при display:none были нулевыми
 });
 document.querySelectorAll('a[href="#river"]').forEach(a=>a.addEventListener("click", ()=>{
-  localStorage.setItem("pf-riv", "1"); applyCollapse();
+  localStorage.setItem("pf-riv", "1"); applyCollapse(); render();
 }));
 
 /* ---------------- геометрия (не зависит от языка) ---------------- */
