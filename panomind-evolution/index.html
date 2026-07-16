@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Panomind for multi-frame aerial panoramas: geometry, current matching models, automatic vertical detection, and controlled PTGui batch processing.">
+  <title>Panomind: Aerial Panoramas, LoMa, and Controlled Batch Processing</title>
+  <style>
+    :root {
+      --ink: #101619;
+      --ink-soft: #1c2629;
+      --paper: #f6f5ef;
+      --paper-strong: #ffffff;
+      --line: #d6d9d1;
+      --muted: #596568;
+      --cyan: #1c8091;
+      --cyan-soft: #d9eff1;
+      --gold: #c58a18;
+      --gold-soft: #fcf0cf;
+      --green: #24814d;
+      --green-soft: #dbeee2;
+      --red: #b8463e;
+      --red-soft: #f8e1df;
+      --max: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.62 Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    a { color: #00697b; text-underline-offset: 0.18em; }
+
+    a:hover { color: #004a58; }
+
+    .page-width {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      color: #f8fbf9;
+      background: var(--ink);
+    }
+
+    .topbar__inside {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 72px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand img { width: 184px; max-width: 50vw; height: auto; }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .nav a { color: #dbe7e5; text-decoration: none; }
+
+    .nav a:hover { color: #ffffff; }
+
+    .topbar__controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 20px;
+    }
+
+    .language-switch {
+      display: inline-flex;
+      overflow: hidden;
+      border: 1px solid #557077;
+      border-radius: 5px;
+      font: 750 12px/1 ui-monospace, Consolas, monospace;
+      letter-spacing: .06em;
+    }
+
+    .language-switch a {
+      padding: 8px 9px;
+      color: #c5d1cf;
+      text-decoration: none;
+    }
+
+    .language-switch a + a { border-left: 1px solid #557077; }
+    .language-switch a:hover { color: #ffffff; background: #2a3c41; }
+    .language-switch a[aria-current="page"] { color: #102024; background: #8bd4d4; }
+
+    .hero {
+      color: #f8fbf9;
+      background: var(--ink);
+      padding: 62px 0 44px;
+    }
+
+    .hero__grid {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #86d4d9;
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .byline { color: #c6d2d0; font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .byline a { color: #a4e0e2; }
+    .byline a:hover { color: #ffffff; }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1, h2, h3 { line-height: 1.08; letter-spacing: 0; }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 22px;
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 760;
+    }
+
+    h2 { font-size: clamp(28px, 3vw, 42px); }
+
+    h3 { font-size: 20px; }
+
+    .hero__lead {
+      max-width: 660px;
+      margin-bottom: 24px;
+      color: #c6d2d0;
+      font-size: 19px;
+    }
+
+    .hero__facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hero__facts li {
+      min-height: 88px;
+      padding: 13px;
+      border-top: 3px solid #80cbd0;
+      background: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .hero__facts strong { display: block; margin-bottom: 5px; color: #ffffff; }
+
+    .hero-visual {
+      overflow: hidden;
+      border: 1px solid #314247;
+      border-radius: 8px;
+      background: #070b0d;
+      box-shadow: 0 20px 48px rgba(0,0,0,.25);
+    }
+
+    .hero-visual__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      color: #bdd0cd;
+      font-size: 12px;
+    }
+
+    .signal { display: inline-flex; gap: 5px; }
+    .signal i { width: 7px; height: 7px; border-radius: 50%; background: #d6a536; }
+    .signal i:first-child { background: #67bb82; }
+    .signal i:last-child { background: #bf655d; }
+
+    .hero-visual__media { aspect-ratio: 2292 / 1499; }
+    .hero-visual__media video { display: block; width: 100%; height: 100%; object-fit: cover; background: #080c0d; }
+
+    .hero-visual__caption {
+      margin: 0;
+      padding: 11px 14px;
+      color: #bdd0cd;
+      font-size: 12px;
+    }
+
+    .section { padding: 72px 0; border-top: 1px solid var(--line); }
+    .section--dark { color: #f8fbf9; background: #172125; border-color: #172125; }
+    .section--tint { background: #eef2ed; }
+
+    .section__head {
+      display: grid;
+      grid-template-columns: minmax(0, .72fr) minmax(280px, .5fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section__head p { margin: 0; color: var(--muted); }
+    .section--dark .section__head p { color: #c5d1cf; }
+
+    .timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+
+    .timeline__item {
+      position: relative;
+      min-height: 292px;
+      padding: 22px 20px 20px;
+      border-top: 5px solid var(--cyan);
+      background: var(--paper-strong);
+    }
+
+    .timeline__item:nth-child(2) { border-color: var(--gold); }
+    .timeline__item:nth-child(3) { border-color: var(--green); }
+
+    .timeline__number {
+      display: block;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font: 700 13px/1 ui-monospace, Consolas, monospace;
+    }
+
+    .timeline__item p { color: var(--muted); }
+    .timeline__item ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 14px; }
+
+    .statement {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 26px 0 0 26px;
+      border-left: 4px solid var(--gold);
+      font-size: clamp(22px, 2.6vw, 34px);
+      font-weight: 650;
+      line-height: 1.25;
+    }
+
+    .tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: #405155; }
+
+    .tool {
+      padding: 25px;
+      background: #172125;
+    }
+
+    .tool__tag {
+      display: inline-block;
+      margin-bottom: 15px;
+      padding: 4px 7px;
+      color: #0d2429;
+      background: #88d4d9;
+      font: 700 11px/1 ui-monospace, Consolas, monospace;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .tool:nth-child(2) .tool__tag { background: #f2c85f; }
+    .tool:nth-child(3) .tool__tag { background: #7dcd9a; }
+    .tool:nth-child(4) .tool__tag { background: #d5d9d5; }
+
+    .tool p { margin-bottom: 0; color: #c5d1cf; }
+
+    .tool code, .note code {
+      padding: .12em .35em;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 4px;
+      color: inherit;
+      background: rgba(255,255,255,.08);
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: .88em;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 36px 26px;
+    }
+
+    .demo {
+      margin: 0;
+      padding-top: 15px;
+      border-top: 4px solid var(--cyan);
+    }
+
+    .demo:nth-child(2) { border-color: var(--gold); }
+    .demo:nth-child(3) { border-color: var(--green); }
+    .demo:nth-child(4) { border-color: var(--red); }
+
+    .demo__visual {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #b7c8c0;
+      aspect-ratio: 16 / 9;
+      background: #080c0d;
+    }
+
+    .demo video { display: block; width: 100%; height: 100%; object-fit: cover; background: #080c0d; }
+    .demo figcaption { margin-top: 13px; }
+    .demo figcaption strong { display: block; margin-bottom: 4px; font-size: 17px; }
+    .demo figcaption span { color: var(--muted); font-size: 14px; }
+
+    .media-player { position: relative; overflow: hidden; background: #080c0d; }
+
+    .media-player__loader {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #eef7f5;
+      background: rgba(8, 12, 13, .74);
+      transition: opacity 180ms ease, visibility 180ms ease;
+      pointer-events: none;
+    }
+
+    .media-player.is-ready .media-player__loader { opacity: 0; visibility: hidden; }
+
+    .media-player__spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(238,247,245,.3);
+      border-top-color: #8bd4d4;
+      border-radius: 50%;
+      animation: media-spin .75s linear infinite;
+    }
+
+    @keyframes media-spin { to { transform: rotate(360deg); } }
+
+    .media-player__controls {
+      position: absolute;
+      z-index: 3;
+      right: 12px;
+      bottom: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 160ms ease, transform 160ms ease;
+      pointer-events: none;
+    }
+
+    .media-player:hover .media-player__controls,
+    .media-player:focus-within .media-player__controls,
+    .media-player.is-paused .media-player__controls,
+    .media-player:fullscreen .media-player__controls {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .media-player__button {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      place-items: center;
+      border: 1px solid rgba(238,247,245,.56);
+      border-radius: 6px;
+      color: #f7fbfa;
+      background: rgba(8, 12, 13, .78);
+      box-shadow: 0 3px 12px rgba(0,0,0,.35);
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .media-player__button:hover { background: rgba(17, 41, 45, .94); }
+    .media-player__button:focus-visible { outline: 3px solid #8bd4d4; outline-offset: 2px; }
+    .media-player__icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+    .media-player__icon--pause { display: block; }
+    .media-player__icon--play { display: none; }
+    .media-player.is-paused .media-player__icon--pause { display: none; }
+    .media-player.is-paused .media-player__icon--play { display: block; }
+
+    .media-player:fullscreen {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      aspect-ratio: auto;
+      place-items: center;
+      background: #000000;
+    }
+
+    .media-player:fullscreen video {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (hover: none) {
+      .media-player__controls { opacity: 1; transform: translateY(0); }
+    }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper-strong); }
+
+    table { width: 100%; min-width: 820px; border-collapse: collapse; }
+    th, td { padding: 15px 16px; vertical-align: top; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: #e9f3ef; background: #1b2a2e; font-size: 13px; }
+    td { font-size: 14px; }
+    tr:last-child td { border-bottom: 0; }
+    td strong { display: block; margin-bottom: 3px; }
+
+    .status { display: inline-block; padding: 3px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+    .status--core { color: #185a36; background: var(--green-soft); }
+    .status--alt { color: #7a5312; background: var(--gold-soft); }
+    .status--expert { color: #813932; background: var(--red-soft); }
+    .status--system { color: #155e6b; background: var(--cyan-soft); }
+    .status--breakthrough { color: #683b05; background: #f7d37c; }
+
+    .note p:last-child { margin-bottom: 0; }
+
+    .pipeline { display: grid; grid-template-columns: repeat(9, minmax(80px, 1fr)); gap: 0; align-items: stretch; overflow-x: auto; padding: 4px 0 16px; }
+
+    .pipe-step {
+      display: grid;
+      align-content: center;
+      min-height: 126px;
+      padding: 16px;
+      color: #182427;
+      background: #e7efeb;
+      border: 1px solid #bfd0c7;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .pipe-step small { display: block; margin-top: 7px; color: #566568; font-weight: 400; line-height: 1.3; }
+    .pipe-step--select { color: #4c3510; background: #f9edca; border-color: #dfc37b; }
+    .pipe-step--write { color: #194d31; background: #dcefe3; border-color: #99c7aa; }
+    .pipe-step--review { color: #154f5b; background: #d9eff1; border-color: #97c9ce; }
+
+    .pipe-arrow { display: grid; place-items: center; min-width: 38px; color: #7d8886; font-size: 26px; }
+
+    .workflow-schema {
+      margin-top: 34px;
+      padding-top: 30px;
+      border-top: 1px solid var(--line);
+    }
+
+    .workflow-schema h3 { margin-bottom: 18px; font-size: 23px; }
+
+    .workflow-line {
+      display: flex;
+      align-items: stretch;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .workflow-node {
+      display: grid;
+      align-content: center;
+      flex: 1 0 150px;
+      min-height: 90px;
+      padding: 14px;
+      color: #183034;
+      border: 1px solid #aec8c5;
+      background: #e1f0ee;
+      font-weight: 750;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .workflow-node small { display: block; margin-top: 5px; color: #506568; font-weight: 400; font-size: 12px; }
+    .workflow-node--decision { color: #573b0d; border-color: #e0c47b; background: #fbefce; }
+    .workflow-node--write { color: #1a5234; border-color: #96c7a8; background: #dcefe3; }
+    .workflow-arrow { display: grid; place-items: center; flex: 0 0 34px; color: #7d8886; font-size: 24px; }
+
+    .workflow-branches {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .workflow-branch {
+      padding: 16px;
+      border-top: 4px solid var(--gold);
+      background: var(--paper-strong);
+    }
+
+    .workflow-branch--studio { border-color: var(--cyan); }
+    .workflow-branch h4 { margin: 0 0 10px; font-size: 15px; }
+    .workflow-branch p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .scenario-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 38px; }
+
+    .scenario { padding-top: 17px; border-top: 3px solid var(--cyan); }
+    .scenario:nth-child(2) { border-color: var(--gold); }
+    .scenario:nth-child(3) { border-color: var(--green); }
+    .scenario:nth-child(4) { border-color: var(--red); }
+    .scenario p { margin-bottom: 0; color: var(--muted); }
+
+    .unique-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: #c1cac7; }
+
+    .unique {
+      padding: 23px;
+      color: var(--ink);
+      background: #eef2ed;
+    }
+
+    .unique h3 { color: var(--ink); }
+    .unique p { margin-bottom: 0; color: var(--muted); font-size: 14px; }
+
+    .breakthrough {
+      display: grid;
+      grid-template-columns: minmax(260px, .55fr) minmax(0, 1fr);
+      gap: 34px;
+      padding: 28px 0 0;
+      border-top: 5px solid var(--gold);
+    }
+
+    .breakthrough__label {
+      color: #754d09;
+      font: 750 13px/1.25 ui-monospace, Consolas, monospace;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .breakthrough h3 { margin-bottom: 10px; font-size: 28px; }
+    .breakthrough p { color: var(--muted); }
+
+    .split { display: grid; grid-template-columns: minmax(0, .9fr) minmax(280px, .6fr); gap: 38px; align-items: start; }
+    .split ul { padding-left: 20px; }
+    .split li { margin-bottom: 10px; }
+
+    .note { padding: 21px; border: 1px solid #bccbc4; border-radius: 8px; background: #e6efe9; }
+
+    .source-list { columns: 2; gap: 42px; padding-left: 20px; }
+    .source-list li { break-inside: avoid; margin-bottom: 12px; }
+
+    .footer { padding: 30px 0 45px; color: #c7d1cf; background: var(--ink); font-size: 13px; }
+    .footer p { margin: 0; }
+    .footer a { color: #96d9dc; }
+
+    @media (max-width: 850px) {
+      .hero { padding-top: 42px; }
+      .hero__grid, .section__head, .split { grid-template-columns: 1fr; }
+      .breakthrough { grid-template-columns: 1fr; }
+      .hero__facts, .timeline, .unique-grid { grid-template-columns: 1fr; }
+      .tool-grid, .scenario-grid, .demo-grid { grid-template-columns: 1fr; }
+      .workflow-branches { grid-template-columns: 1fr; }
+      .source-list { columns: 1; }
+      .nav { display: none; }
+      .topbar__controls { gap: 0; }
+      .timeline__item { min-height: 0; }
+    }
+
+    @media (max-width: 520px) {
+      .page-width { width: min(100% - 28px, var(--max)); }
+      .topbar__inside { min-height: 60px; }
+      .brand img { width: 160px; }
+      .section { padding: 52px 0; }
+      h1 { font-size: 40px; }
+      .hero__lead { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="page-width topbar__inside">
+      <a class="brand" href="../" aria-label="Panomind home">
+        <img src="../assets/panomind-wordmark.png" alt="Panomind">
+      </a>
+      <div class="topbar__controls">
+        <nav class="nav" aria-label="Article sections">
+          <a href="#evolution">Evolution</a>
+          <a href="#tools">Tools</a>
+          <a href="#in-action">In action</a>
+          <a href="#models">Models</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#difference">Engineering</a>
+        </nav>
+        <div class="language-switch" aria-label="Article language">
+          <a href="ru/" lang="ru">RU</a>
+          <a href="./" lang="en" aria-current="page">EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="page-width hero__grid">
+        <div>
+          <p class="eyebrow">Published: July 16, 2026 <span class="byline">&middot; By <a href="https://www.linkedin.com/in/fotowizard/">Dmitry Pelepets</a></span></p>
+          <h1>Panomind: from frame geometry to reliable aerial-panorama batch production</h1>
+          <p class="hero__lead">Panomind is built for multi-frame aerial panoramas where ordinary automatic stitching is not enough: strong perspective, elevation changes, repeated structures, reflections, water, moving traffic, and large batches of similar projects. It makes the PTGui workflow observable, controllable, and repeatable.</p>
+          <ul class="hero__facts" aria-label="Three product-development stages">
+            <li><strong>LVL tools</strong>geometry, control points, verticals, and analysis of scenes with walls and structures</li>
+            <li><strong>Panomind Overlay</strong>live connection audit directly in PTGui Panorama Editor</li>
+            <li><strong>Panomind Studio</strong>model-guided CP selection, presets, and dependable headless batch work</li>
+          </ul>
+        </div>
+        <figure class="hero-visual">
+          <div class="hero-visual__bar">
+            <span>Panomind Overlay / real capture</span>
+            <span class="signal" aria-label="Capture status"><i></i><i></i><i></i></span>
+          </div>
+          <div class="hero-visual__media media-player" data-media-player>
+            <video autoplay muted loop playsinline preload="auto" poster="assets/panomind-overlay-hero-loop.webp" data-full-src="assets/panomind-overlay-hero-loop-full.mp4" aria-label="Panomind Overlay animation over PTGui Panorama Editor">
+              <source src="assets/panomind-overlay-hero-loop.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption class="hero-visual__caption">Overlay shows the frame graph and connections over PTGui's working window, without sending the operator to a separate viewer.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="evolution">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Development chronology</p>
+            <h2>How the project evolved: three stages of development and experimentation</h2>
+          </div>
+          <p>This is not an architecture diagram, but a short development history. Each stage emerged from the limits of the previous one: first the engineering utilities, then visual control inside PTGui, and finally Studio with reproducible processing for project series.</p>
+        </div>
+        <div class="timeline">
+          <article class="timeline__item">
+            <span class="timeline__number">01 / DEVELOPMENT STAGE: LVL</span>
+            <h3>Tools for geometry and vertical structures</h3>
+            <p>The initial challenge was engineering: read PTGui <code>.pts</code> projects, calculate projections, and automate operations that do not scale manually when imaging buildings, structures, and other scenes with strong verticals.</p>
+            <ul>
+              <li>the exact chain “frame pixel → world ray → panorama”;</li>
+              <li>regular CP <code>t=0</code> and automatic vertical-line proposals <code>t=1</code>;</li>
+              <li>diagnostics, vertical-structure analysis, reports, and batch wrappers.</li>
+            </ul>
+          </article>
+          <article class="timeline__item">
+            <span class="timeline__number">02 / DEVELOPMENT STAGE: PANOMIND OVERLAY + TOOLS</span>
+            <h3>Visual control inside PTGui</h3>
+            <p>Panomind Overlay brings diagnostics into Panorama Editor. The operator sees the multi-frame project structure in the same context where the stitched result is reviewed.</p>
+            <ul>
+              <li>connection graph, CPs, verticals, quality buckets, and VPC;</li>
+              <li>quick launch of CP Assistant and VP Assistant automatic vertical detection;</li>
+              <li>a Windows product with settings, logs, and Core/GPU Runtime packaging.</li>
+            </ul>
+          </article>
+          <article class="timeline__item">
+            <span class="timeline__number">03 / DEVELOPMENT STAGE: PANOMIND STUDIO + BATCH TOOLS</span>
+            <h3>A lab and a repeatable pipeline</h3>
+            <p>Studio provides dedicated space for precise CP selection: frame pairs, an ERP panorama, mask layers, and candidates before they are written to the project. A tuned solution is saved as a preset and becomes a dependable batch process for a capture series.</p>
+            <ul>
+              <li>depth, segmentation, glass/mirror masks, and geometric filters;</li>
+              <li>saved presets instead of manually repeating settings;</li>
+              <li>the same presets run headlessly over a folder of projects.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="statement">PTGui assembles the panorama. Panomind explains where its geometry is unreliable and provides a controlled path from correcting one frame pair to improving a large project series.</p>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="tools">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Tools</p>
+            <h2>Four roles in one controlled process</h2>
+          </div>
+          <p>The system separates visual audit, interactive CP preparation, batch operations, and geometry utilities. A quick fix therefore does not become a heavy batch job, and a project series does not require manually repeating parameters.</p>
+        </div>
+        <div class="tool-grid">
+          <article class="tool">
+            <span class="tool__tag">Panomind Overlay</span>
+            <h3>Audit in the current PTGui project</h3>
+            <p>The Windows overlay reads the active <code>.pts</code>, builds a frame graph, and renders connections, CPs, verticals, a mask, and color-coded quality. On a multi-frame aerial panorama, it quickly reveals weak rings, missing links, VPC frames, and points requiring attention.</p>
+          </article>
+          <article class="tool">
+            <span class="tool__tag">CP / VP Assistant</span>
+            <h3>Targeted correction without leaving the editor</h3>
+            <p>CP Assistant adds points on neighboring or missing links with geometric validation and spatial balancing. VP Assistant automatically finds vertical lines in scenes with walls and structures. Comparable automation for verticals is not part of a conventional stitcher feature set: it is a dedicated Panomind layer over the PTGui project.</p>
+          </article>
+          <article class="tool">
+            <span class="tool__tag">Panomind Studio</span>
+            <h3>A visual lab for CPs</h3>
+            <p>The local web application opens a project in frame-pair and ERP modes. It shows existing CPs and candidates, lets the operator choose current models, segment objects, separate near and far planes with depth masks, and write only visually checked results with automatic backup.</p>
+          </article>
+          <article class="tool">
+            <span class="tool__tag">Batch tools</span>
+            <h3>Dependable processing for a series</h3>
+            <p><code>cp_studio_batch.py</code> applies a Studio preset to a folder of <code>.pts</code> projects; <code>vismatch_cp_batch.py</code> and <code>vertical_cp_batch.py</code> perform bulk enrichment. Other utilities prune verticals and center the sun from the image itself. Each project is included in a report, and writes are protected by backup.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint" id="in-action">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Real workflow</p>
+            <h2>The tools in action: one capture, four workflows</h2>
+          </div>
+          <p>These short clips come from one real multi-frame aerial-panorama recording. They show a continuous process: PTGui remains the working project, while Panomind adds visibility, controllable masks, and automated geometry preparation.</p>
+        </div>
+        <div class="demo-grid">
+          <figure class="demo">
+            <div class="demo__visual media-player" data-media-player>
+              <video autoplay muted loop playsinline preload="auto" poster="assets/panomind-ptgui-standard-flow-poster.jpg" data-full-src="assets/panomind-ptgui-standard-flow-full.mp4" aria-label="Manual panorama work in PTGui">
+                <source src="assets/panomind-ptgui-standard-flow.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>
+              <strong>PTGui: review before and after Panomind work</strong>
+              <span>The clip starts with manual frame and panorama review in PTGui, then ends with the final panorama from the same project in Detail Viewer.</span>
+            </figcaption>
+          </figure>
+          <figure class="demo">
+            <div class="demo__visual media-player" data-media-player>
+              <video autoplay muted loop playsinline preload="auto" poster="assets/panomind-overlay-to-cp-vp-verified-poster.jpg" data-full-src="assets/panomind-overlay-to-cp-vp-verified-full.mp4" aria-label="Panomind Overlay and CP VP Assistant: panorama links and structural points">
+                <source src="assets/panomind-overlay-to-cp-vp-verified.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>
+              <strong>Panorama links and structural points</strong>
+              <span>Overlay displays all links and control points in Panorama Editor so the operator can rapidly assess their distribution, including on glass and reflective surfaces. In the second part, CP / VP Assistant shows points formed on structural edges and verticals in the same <code>.pts</code>.</span>
+            </figcaption>
+          </figure>
+          <figure class="demo">
+            <div class="demo__visual media-player" data-media-player>
+              <video autoplay muted loop playsinline preload="auto" poster="assets/panomind-studio-depth-dam-masks-poster.jpg" data-full-src="assets/panomind-studio-depth-dam-masks-full.mp4" aria-label="Panomind Studio with depth and DAM masks over a panorama">
+                <source src="assets/panomind-studio-depth-dam-masks.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>
+              <strong>Panomind Studio: depth, semantic, and DAM masks</strong>
+              <span>In Panorama mode, Studio visualizes semantic, depth, and DAM masks over ERP. These masks can define a CP-generation region or exclude unstable areas.</span>
+            </figcaption>
+          </figure>
+          <figure class="demo">
+            <div class="demo__visual media-player" data-media-player>
+              <video autoplay muted loop playsinline preload="auto" poster="assets/panomind-studio-cp-generation-poster.jpg" data-full-src="assets/panomind-studio-cp-generation-full.mp4" aria-label="Panomind Studio: control-point generation on an aerial panorama">
+                <source src="assets/panomind-studio-cp-generation.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>
+              <strong>Panomind Studio: control-point generation</strong>
+              <span>The CP Generation panel brings together the matcher, frame scope, masks, and geometric filters. Studio displays candidates on ERP before writing to <code>.pts</code>.</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="models">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Models and methods</p>
+            <h2>New models work with geometry, not instead of it</h2>
+          </div>
+          <p>Panomind combines current matching, segmentation, and depth models with geometric validation. This matters for complex aerial panoramas: a model may propose a stronger hypothesis, but only points that pass validation, masks, and visual review enter the project.</p>
+        </div>
+
+        <div class="breakthrough">
+          <div>
+            <p class="breakthrough__label">Key breakthrough, 2026</p>
+            <h3>LoMa raises the bar for difficult correspondences</h3>
+          </div>
+          <div>
+            <p>LoMa-B and LoMa-G are not simply more entries in a matcher selector. <em>LoMa: Local Feature Matching Revisited</em> builds quality through data, model-capacity, and training scale; its authors also created HardMatch, a set of genuinely difficult pairs where conventional tests no longer distinguish models well. This is especially relevant to aerial panoramas, where the challenge often comes from severe changes in viewpoint, scale, illumination, and texture rather than a lack of pixels.</p>
+            <p>In Panomind, LoMa works from full-resolution image paths rather than only a downscaled frame copy. Its role is to provide a strong hypothesis for the hardest links. Panomind then constrains the result with masks, RANSAC, a parallax filter, and visual review, so a high density of correspondences does not become a high density of errors.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Current component</th>
+                <th>What it contributes in Panomind</th>
+                <th>Status and practical constraint</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Primary sparse matcher</strong></td>
+                <td>SIFT + LightGlue</td>
+                <td>Fast and sufficiently strict correspondences for CP Assistant and the overlay-default batch. SIFT supplies robust classic keypoints, while LightGlue matches them with an adaptive neural network.</td>
+                <td><span class="status status--core">Primary</span><br>The current default. Its checkpoint is pre-seeded in the Windows build, making it the most predictable mode for everyday project series.</td>
+              </tr>
+              <tr>
+                <td><strong>Recommended learned sparse matcher</strong></td>
+                <td>ALIKED + LightGlue, including subpixel mode</td>
+                <td>A current learned detector/describer before LightGlue; it is marked as recommended in Studio. It is useful when SIFT does not find repeatable local features reliably enough.</td>
+                <td><span class="status status--core">Primary Studio choice</span><br>Weights may download on first run. Results still go through RANSAC, masks, and visual review.</td>
+              </tr>
+              <tr>
+                <td><strong>Fast, compatible alternatives</strong></td>
+                <td>XFeat + LightGlue, DISK + LightGlue, SuperPoint + LightGlue</td>
+                <td>XFeat supports lightweight, fast runs; DISK and SuperPoint provide additional keypoint families that can be useful as an alternative hypothesis on a difficult scene.</td>
+                <td><span class="status status--alt">Alternative</span><br>Not the default. SuperPoint requires a separate license review and is marked non-commercial in the interface.</td>
+              </tr>
+              <tr>
+                <td><strong>Heavy learned matchers</strong></td>
+                <td>DeDoDe, RoMa, RoMa v2</td>
+                <td>DeDoDe expands the set of sparse hypotheses. RoMa produces dense correspondences where sparse features are unstable. RoMa v2 is positioned as the densest, highest-quality option available in Studio.</td>
+                <td><span class="status status--expert">Expert</span><br>Slower and more VRAM-hungry. The code caps the working size for RoMa/RoMa v2; RoMa v2 requires CUDA. “Best” here means a candidate to validate on a specific capture, not an automatic selection.</td>
+              </tr>
+              <tr>
+                <td><strong>Key matcher for challenging links</strong></td>
+                <td>LoMa-B / LoMa-G (ECCV 2026)</td>
+                <td>A recent model for difficult local correspondences, built around substantially broader training and challenging data. Unlike most Studio modes, it works from full-resolution image paths; masked detection can select features inside a specified region.</td>
+                <td><span class="status status--breakthrough">Key breakthrough</span><br>A separate <code>lomatch</code> package and high memory use. This is a deliberate mode for difficult pairs, not an unconditional replacement for the fast batch default.</td>
+              </tr>
+              <tr>
+                <td><strong>Continuity</strong></td>
+                <td>LoFTR outdoor</td>
+                <td>The detector-free matcher remains in the LVL set and packaged assets as a proven earlier route for difficult textured regions.</td>
+                <td><span class="status status--alt">Legacy</span><br>Not the CP Assistant default: SIFT + LightGlue replaced it in the current overlay-default workflow.</td>
+              </tr>
+              <tr>
+                <td><strong>Separate near and far planes</strong></td>
+                <td>Depth Anything V2 Large, ONNX</td>
+                <td>Builds a per-frame depth map for a depth-band mask. The operator can match the foreground and distant background separately: for example, first find CPs on nearby structures, then on the distant environment. Studio also removes the global depth gradient to reveal local structure.</td>
+                <td><span class="status status--system">System component</span><br>The output is a relative mask cue, not metric 3D truth. Near-depth can be intersected with a semantic class.</td>
+              </tr>
+              <tr>
+                <td><strong>Scene semantics and panorama objects</strong></td>
+                <td>SegFormer B0, ADE20K, ONNX</td>
+                <td>Lightweight, CPU-friendly segmentation identifies classes present in the frame: sky, water, cars, people, trees, grass, walls, buildings, roads, and more. Selected classes become a mask, so unstable or moving regions can be excluded automatically from CP search and the geometric part of stitching.</td>
+                <td><span class="status status--system">Mature and fast</span><br>A compact ONNX component for interactive and batch work. Semantics does not replace motion tracking; it gives the operator a controllable class-exclusion rule.</td>
+              </tr>
+              <tr>
+                <td><strong>Glass and mirrors</strong></td>
+                <td>DAM / Detect Any Mirrors, DINOv2-small + DPT, ONNX</td>
+                <td>A specialised mask for mirrors and glass or reflective regions. It can be shown in Studio, used as a search region, or used to exclude reflections from CP generation.</td>
+                <td><span class="status status--system">Specialised</span><br>A 2025 model loaded lazily on CPU at first use. This is a working mask hypothesis, so the operator sees it before points are written.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section section--tint" id="pipeline">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Pipeline</p>
+            <h2>From a difficult pair to a dependable series: one project and one preset</h2>
+          </div>
+          <p>Studio does not create a parallel control-point database. It works with the same <code>.pts</code>, shows candidates separately before writing, creates a backup, and returns the project to PTGui. A preset moves a solution tuned on a difficult pair into predictable batch execution.</p>
+        </div>
+        <div class="pipeline" aria-label="Panomind pipeline">
+          <div class="pipe-step">PTGui <code>.pts</code><small>images, camera parameters, current CPs</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--review">Overlay audit<small>links, quality, VPC, verticals</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--select">Studio selection<small>frames, pairs, ERP, scope, and matcher</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--select">Masks + filters<small>objects, near/far planes, reflections, RANSAC, parallax</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--write">Write + preset<small>backup, updated .pts, repeatable settings</small></div>
+        </div>
+        <div class="pipeline" aria-label="Batch pipeline continuation">
+          <div class="pipe-step pipe-step--write">Studio preset<small>masks, LoMa or another matcher, generation mode, write, and VP</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step">Headless batch<small><code>cp_studio_batch.py</code> processes a project series in sequence</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--review">Reports<small>progress JSON, per-project outcome, errors, and backups</small></div>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <div class="pipe-step pipe-step--write">PTGui review<small>reload the project and perform final visual validation</small></div>
+        </div>
+        <div class="workflow-schema" aria-label="Branching Panomind workflow">
+          <h3>Decision workflow</h3>
+          <div class="workflow-line">
+            <div class="workflow-node">PTGui project <small>.pts + source frames</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node">Panomind Overlay <small>links, CPs, VPC, verticals</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node">Visual audit <small>where and why geometry is unreliable</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node workflow-node--decision">Needs work? <small>quick fix or deeper analysis</small></div>
+          </div>
+          <div class="workflow-branches">
+            <div class="workflow-branch">
+              <h4>Quick fix inside PTGui</h4>
+              <p>CP Assistant / VP Assistant → write to <code>.pts</code> with backup → reload and continue in PTGui.</p>
+            </div>
+            <div class="workflow-branch workflow-branch--studio">
+              <h4>Deep work in Panomind Studio</h4>
+              <p>Frames and ERP → semantic / depth / DAM masks → LoMa or another matcher → RANSAC and parallax → visual validation → write to <code>.pts</code>.</p>
+            </div>
+          </div>
+          <div class="workflow-line" style="margin-top:16px">
+            <div class="workflow-node">Panomind Studio <small>tuned configuration</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node workflow-node--write">Save preset <small>masks, matcher, write, VP, band</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node">Headless batch <small>project series, --dry-run, backup</small></div>
+            <div class="workflow-arrow" aria-hidden="true">→</div>
+            <div class="workflow-node workflow-node--write">Reports and PTGui review <small>per-project result and final validation</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ptgui-comparison">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">PTGui and Panomind</p>
+            <h2>Not a stitcher replacement, but a layer for analysis and controlled geometry</h2>
+          </div>
+          <p>PTGui remains the primary tool for optimisation, stitching, rendering, and manual finishing. Panomind works beside it where multi-frame-link analysis, new models, and repeatable decisions for large series are required.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>PTGui</th>
+                <th>Panomind</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Optimisation and final assembly</strong></td>
+                <td>Primary tool: optimiser, render masks, panorama stitching, and export.</td>
+                <td>Does not duplicate the stitcher. It prepares and diagnoses project geometry, then returns it to the same <code>.pts</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>Project-structure visibility</strong></td>
+                <td>Provides the editor and project parameters, but does not highlight weak links, quality buckets, and VPC pairs as a live graph over Panorama Editor.</td>
+                <td>Overlay renders links, CPs, verticals, quality, and VPC in PTGui's working context; problem areas are visible before heavy processing starts.</td>
+              </tr>
+              <tr>
+                <td><strong>Current CP models</strong></td>
+                <td>Has its own control-point and optimisation mechanisms, but does not provide a choice of LoMa, LightGlue, RoMa, DeDoDe, and other current matcher families together with model-based masks.</td>
+                <td>Studio selects a matcher for the scene and combines it with RANSAC, a parallax filter, spatial balancing, and visual candidate review.</td>
+              </tr>
+              <tr>
+                <td><strong>Semantics and depth</strong></td>
+                <td>Supports manual masks, which remain especially important for the final result.</td>
+                <td>Automatically segments scene classes and builds depth masks. This can exclude sky, water, vehicles, and other unstable zones from geometry, while matching foreground and background CPs separately.</td>
+              </tr>
+              <tr>
+                <td><strong>Verticals</strong></td>
+                <td>A project can store vertical constraints, but finding them remains a manual operator task.</td>
+                <td>VP Assistant automatically finds vertical lines in frames with walls and structures and writes <code>t=1</code> control points. This automated vertical workflow is not a standard feature of mainstream stitchers.</td>
+              </tr>
+              <tr>
+                <td><strong>Project series</strong></td>
+                <td>Works well for manual and template-based work, but does not store a tuned set of current models, masks, and filters as one preset with an execution report.</td>
+                <td>A Studio preset carries one rule to a folder of <code>.pts</code> projects and supports <code>--dry-run</code>, automatic backup, JSON progress, and a per-project report.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="scenarios">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Use cases</p>
+            <h2>Aerial panoramas in difficult conditions: from one link to a whole series</h2>
+          </div>
+          <p>The level of automation can match the risk of the task: spot a problem quickly in Overlay, investigate a difficult pair in Studio, or move a tuned strategy to a large project series.</p>
+        </div>
+        <div class="scenario-grid">
+          <article class="scenario">
+            <h3>Fast aerial-panorama audit in PTGui</h3>
+            <p>Open the project and Panorama Editor, enable Overlay, and inspect weak links, outliers, VPC, or missing verticals. In a multi-frame capture, this separates a local problem in one pair from a structural gap in the frame ring. When the diagnosis is clear, launch CP Assistant or VP Assistant from the same window.</p>
+          </article>
+          <article class="scenario">
+            <h3>Precise work on a difficult pair</h3>
+            <p>In Studio, choose a pair or frame set and inspect existing CPs and candidates beside the ERP view. Use LoMa for a severe change in viewpoint or scale, and fast SIFT/ALIKED + LightGlue for ordinary links. Limit the search with a mask, apply RANSAC and the parallax filter. Only the validated candidate set is written to <code>.pts</code>.</p>
+          </article>
+          <article class="scenario">
+            <h3>Motion, water, reflections, and foreground</h3>
+            <p>Enable semantic masks for sky, water, cars, people, vegetation, or other classes; DAM for reflective regions; and a depth mask for the near or far plane. CPs are then searched where the scene is geometrically reliable, not on accidental matches in moving or reflected objects.</p>
+          </article>
+          <article class="scenario">
+            <h3>A dependable panorama series</h3>
+            <p>First tune the settings on a representative project, save a preset, run <code>--dry-run</code>, and then apply it to a folder of <code>.pts</code> files. The batch runner keeps a per-project report and backup; a consistent rig layout can be processed using selected frame indices. This turns one operator's expertise into a reproducible rule.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="difference">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Original engineering</p>
+            <h2>Original engineering turns new models into a controlled PTGui workflow</h2>
+          </div>
+          <p>Panomind's value is not in renaming open models, but in the engineering system around them: it connects a model, geometry, visual explanation, writing to the project, and batch execution. That is what makes a new model usable on a real aerial-panorama series.</p>
+        </div>
+        <div class="unique-grid">
+          <article class="unique">
+              <h3>One geometry for display and writing</h3>
+              <p>The projection model maps frame pixels to world rays and ERP positions. Overlay, Studio Panorama mode, and VPC calculation use the same projection context, so the visual explanation does not drift away from project geometry.</p>
+          </article>
+          <article class="unique">
+              <h3>Semantics excludes unstable zones</h3>
+              <p>Sky, water, cars, people, trees, and other classes become controllable masks. The operator can exclude them from CP search or inspect one class on its own. Inside/outside and detect/post modes make semantics a selection rule rather than a decorative AI layer.</p>
+          </article>
+          <article class="unique">
+              <h3>Depth separates scene planes</h3>
+              <p>A depth mask enables independent correspondence searches in the foreground and distant environment. This is particularly useful for an aerial panorama with nearby structures and a distant landscape: one mode does not have to explain two different geometries at once.</p>
+          </article>
+          <article class="unique">
+              <h3>LoMa passes geometric scrutiny</h3>
+              <p>LoMa provides strong full-resolution correspondences for difficult pairs, but then fundamental/homography RANSAC, spatial point balancing, and a parallax-outlier filter based on robust MAD statistics take over. More matches therefore do not mean more points written to the project.</p>
+          </article>
+          <article class="unique">
+              <h3>Verticals are detected automatically</h3>
+              <p>VP Assistant proposes <code>t=1</code> lines in frames with walls and vertical structures. This is an uncommon level of automation for stitchers: Panomind does not merely accept ready-made lines, but generates candidates, shows them, and transfers them into the same project.</p>
+          </article>
+          <article class="unique">
+              <h3>A preset connects Studio and batch</h3>
+              <p>The preset format is identical for interactive Studio and the headless runner: masks, generation, write, VP, and parallax band. The operator tunes a rule once, then reproduces exactly that rule across a series, with a report and backup for every project.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="position">
+      <div class="page-width split">
+        <div>
+          <p class="eyebrow">Positioning</p>
+          <h2>Panomind strengthens PTGui where complex geometry begins</h2>
+          <p>PTGui optimises, stitches, and assembles the final panorama. Panomind adds observability and control to project preparation: it shows link structure, proposes candidates, finds verticals automatically, helps exclude unstable zones, and saves a solution as a repeatable operation.</p>
+          <p>The development sequence matters: <strong>working tools → Panomind Overlay + tools → Panomind Studio + tools for batch work.</strong> It makes new models part of a real production process rather than just a technology list.</p>
+        </div>
+        <aside class="note">
+          <h3>One project from interactive work to batch</h3>
+          <p>Panomind does not create an alternative project format. The tools read and update the source <code>.pts</code>; before writing, they create a backup and keep the result available for normal PTGui review.</p>
+          <ul>
+            <li>Overlay provides fast visual diagnosis in the active project;</li>
+            <li>Studio shows candidates before they change the project;</li>
+            <li>one preset makes the tuned rule reusable in batch;</li>
+            <li>reports retain the outcome for each project in a series.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section section--tint" id="sources">
+      <div class="page-width">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">Sources</p>
+            <h2>Scientific and technical sources</h2>
+          </div>
+          <p>Publications and projects behind the correspondence, depth, segmentation, and mirror-mask models used in Panomind.</p>
+        </div>
+        <ol class="source-list">
+          <li><a href="https://github.com/cvg/LightGlue">LightGlue</a> — sparse learned matching, ICCV 2023.</li>
+          <li><a href="https://github.com/DepthAnything/Depth-Anything-V2">Depth Anything V2</a> — official relative monocular-depth model.</li>
+          <li><a href="https://huggingface.co/docs/transformers/en/model_doc/segformer">SegFormer</a> — semantic-segmentation documentation; Panomind uses B0 fine-tuned on ADE20K.</li>
+          <li><a href="https://openaccess.thecvf.com/content/CVPR2025/papers/Xing_Detect_Any_Mirrors_Boosting_Learning_Reliability_on_Large-Scale_Unlabeled_Data_CVPR_2025_paper.pdf">Detect Any Mirrors</a> — DAM, CVPR 2025.</li>
+          <li><a href="https://github.com/verlab/accelerated_features">XFeat</a> — lightweight local features, CVPR 2024.</li>
+          <li><a href="https://github.com/Parskatt/DeDoDe">DeDoDe</a> and <a href="https://github.com/Parskatt/RoMa">RoMa</a> — alternative sparse/dense matching families.</li>
+          <li><a href="https://arxiv.org/abs/2511.15706">RoMa v2</a> — dense matching next generation.</li>
+          <li><a href="https://www.davnords.com/loma">LoMa</a> — Local Feature Matching Revisited, ECCV 2026.</li>
+          <li><a href="https://github.com/zju3dv/LoFTR">LoFTR</a> — bundled legacy detector-free matcher.</li>
+          <li><a href="https://github.com/gmberton/vismatch">vismatch</a> — an adapter for multiple matchers in Studio's local environment.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page-width">
+      <p>Panomind for analysing and preparing complex multi-frame aerial panoramas. The technical names <code>cp_studio.py</code> and <code>cp_studio_batch.py</code> remain internal; user-facing text uses <strong>Panomind Studio</strong>.</p>
+    </div>
+  </footer>
+  <script>
+    (() => {
+      const copy = {
+        play: 'Play animation',
+        pause: 'Pause animation',
+        fullscreen: 'View full size',
+        exitFullscreen: 'Exit full screen',
+        loading: 'Loading animation'
+      };
+      const icons = {
+        play: '<svg class="media-player__icon media-player__icon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 14 9-14 9V3z"></path></svg>',
+        pause: '<svg class="media-player__icon media-player__icon--pause" viewBox="0 0 24 24" aria-hidden="true"><rect width="4" height="16" x="6" y="4"></rect><rect width="4" height="16" x="14" y="4"></rect></svg>',
+        fullscreen: '<svg class="media-player__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"></path><path d="m21 3-7 7"></path><path d="M9 21H3v-6"></path><path d="m3 21 7-7"></path></svg>'
+      };
+
+      const players = [...document.querySelectorAll('[data-media-player]')];
+      const updateFullscreenButtons = () => {
+        players.forEach((player) => {
+          const button = player.querySelector('[data-media-action="fullscreen"]');
+          if (!button) return;
+          const active = document.fullscreenElement === player;
+          button.setAttribute('aria-label', active ? copy.exitFullscreen : copy.fullscreen);
+          button.title = active ? copy.exitFullscreen : copy.fullscreen;
+        });
+      };
+
+      players.forEach((player) => {
+        const video = player.querySelector('video');
+        if (!video) return;
+        const source = video.querySelector('source');
+        const inlineSource = source?.getAttribute('src');
+        const fullSource = video.dataset.fullSrc;
+        player.insertAdjacentHTML('beforeend', `<div class="media-player__loader" aria-hidden="true"><span class="media-player__spinner"></span><span class="sr-only">${copy.loading}</span></div><div class="media-player__controls"><button class="media-player__button" type="button" data-media-action="play" aria-label="${copy.pause}" title="${copy.pause}">${icons.play}${icons.pause}</button><button class="media-player__button" type="button" data-media-action="fullscreen" aria-label="${copy.fullscreen}" title="${copy.fullscreen}">${icons.fullscreen}</button></div>`);
+        const playButton = player.querySelector('[data-media-action="play"]');
+        const fullscreenButton = player.querySelector('[data-media-action="fullscreen"]');
+        const setState = () => {
+          const paused = video.paused;
+          player.classList.toggle('is-paused', paused);
+          playButton.setAttribute('aria-label', paused ? copy.play : copy.pause);
+          playButton.title = paused ? copy.play : copy.pause;
+        };
+        const ready = () => player.classList.add('is-ready');
+        const swapSource = (nextSource) => {
+          if (!source || !nextSource || source.getAttribute('src') === nextSource) return;
+          const currentTime = video.currentTime;
+          const wasPlaying = !video.paused;
+          source.setAttribute('src', nextSource);
+          video.load();
+          video.addEventListener('loadedmetadata', () => {
+            video.currentTime = Math.min(currentTime, Math.max(0, video.duration - .05));
+            if (wasPlaying) video.play().catch(setState);
+          }, { once: true });
+        };
+
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) ready();
+        video.addEventListener('loadeddata', ready, { once: true });
+        video.addEventListener('canplay', ready, { once: true });
+        video.addEventListener('playing', () => { ready(); setState(); });
+        video.addEventListener('pause', setState);
+        video.addEventListener('play', setState);
+        video.addEventListener('waiting', () => { if (!video.paused) player.classList.remove('is-ready'); });
+        playButton.addEventListener('click', () => {
+          if (video.paused) video.play().catch(setState);
+          else video.pause();
+        });
+        fullscreenButton.addEventListener('click', () => {
+          if (document.fullscreenElement === player) document.exitFullscreen();
+          else {
+            player.requestFullscreen?.().then(() => {
+              if (document.fullscreenElement !== player || !fullSource) return;
+              player.dataset.usingFullSource = 'true';
+              swapSource(fullSource);
+            }).catch(() => {});
+          }
+        });
+        document.addEventListener('fullscreenchange', () => {
+          if (document.fullscreenElement !== player && player.dataset.usingFullSource === 'true') {
+            player.dataset.usingFullSource = '';
+            swapSource(inlineSource);
+          }
+        });
+        setState();
+      });
+
+      document.addEventListener('fullscreenchange', updateFullscreenButtons);
+      updateFullscreenButtons();
+    })();
+  </script>
+</body>
+</html>

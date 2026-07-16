@@ -557,6 +557,51 @@ code {
     linear-gradient(180deg, #080b12, #06070c);
 }
 
+.section--article {
+  background:
+    radial-gradient(circle at top left, rgba(89, 212, 215, 0.1), transparent 28%),
+    linear-gradient(180deg, #06070c, #090d14);
+}
+
+.article-promo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.38fr);
+  gap: 2rem;
+  align-items: end;
+  padding: clamp(1.5rem, 3vw, 2.4rem) 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+.article-promo h2 {
+  max-width: 46rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.95rem, 3.8vw, 3.15rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.article-promo > div:first-child > p:last-child {
+  max-width: 48rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.article-promo__action {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+}
+
+.article-promo__action p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.article-promo__action a:not(.button) { color: var(--accent-cyan); }
+
 .section--demo {
   background:
     radial-gradient(circle at top right, rgba(83, 168, 245, 0.12), transparent 26%),
@@ -1405,6 +1450,7 @@ code {
   .overlay-grid,
   .feature-grid,
   .roadmap-grid,
+  .article-promo,
   .demo-card,
   .notes-grid {
     grid-template-columns: 1fr;
